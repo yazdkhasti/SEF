@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d75a5cd1-7996-48de-8a2e-aa6665775c8d" name="Default Changelist" comment="Initial Commit">
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandServiceFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/NullCmd.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/NullHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/NullResp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/exception/CommandExecutionException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/command/AuthenticateCmd.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/command/AuthenticateResp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/command/RegisterCmd.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/command/RegisterResp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/model/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/edu/rmit/sef/stocktradingserver/command/CommandIntegrationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/edu/rmit/sef/stocktradingserver/order/services/OrderServiceIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/api/JwtRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/api/UserWebApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/config/ApiAuthenticationEntryPoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/config/ApiAuthenticationEntryPoint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/config/ApiSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/config/ApiSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/exception/DisabledUserException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/exception/DisabledUserException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/exception/InvalidUserCredentialsException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/exception/InvalidUserCredentialsException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/exception/JwtTokenMalformedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/exception/JwtTokenMalformedException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/exception/JwtTokenMissingException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/exception/JwtTokenMissingException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/filter/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/service/UserAuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/service/UserAuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/util/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/vm/JwtRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/auth/vm/JwtResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/CommandStore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ExecutionContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ExecutionContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandServiceFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/ICommandServiceFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/SpringServiceResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/command/core/SpringServiceResolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/core/command/CommandResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/core/command/CommandResp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/core/command/CreateEntityResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/core/command/CreateEntityResp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/api/OrderWebApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/api/OrderWebApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/command/CreateOrder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/command/CreateOrder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/service/OrderHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/order/service/OrderHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/rmit/sef/stocktradingserver/user/UserWebApi.java" beforeDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="AnnotationType" />
+        <option value="Interface" />
+        <option value="Enum" />
+        <option value="package-info" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1PxqNgJSi7hQ7L166y1t9QZpXT1" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="Downloaded.Files.Path.Enabled" value="false" />
+    <property name="Repository.Attach.Annotations" value="false" />
+    <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="Repository.Attach.Sources" value="false" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.38364312" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="edu.rmit.sef.stocktradingserver.order" />
+      <recent name="edu.rmit.sef.stocktradingserver" />
+    </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="edu.rmit.sef.stocktradingserver.command.core" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="edu.rmit.sef.stocktradingserver.StockTradingServerApplication" />
+      <module name="stock-trading-server" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in stock-trading-server" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+      <module name="stock-trading-server" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CommandIntegrationTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="stock-trading-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="edu.rmit.sef.stocktradingserver.command.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="edu.rmit.sef.stocktradingserver.command" />
+      <option name="MAIN_CLASS_NAME" value="edu.rmit.sef.stocktradingserver.command.CommandIntegrationTests" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="JUnit.All in stock-trading-server" />
+      <item itemvalue="JUnit.CommandIntegrationTests" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.CommandIntegrationTests" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d75a5cd1-7996-48de-8a2e-aa6665775c8d" name="Default Changelist" comment="" />
+      <created>1566826056510</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1566826056510</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Initial Commit">
+      <created>1567151169633</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1567151169633</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial Commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial Commit" />
+  </component>
+</project>
