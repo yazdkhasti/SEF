@@ -1,13 +1,14 @@
-package edu.rmit.sef.stocktradingserver.user.command;
+package edu.rmit.sef.stocktradingserver.user.model;
 
-import edu.rmit.command.core.Command;
+import edu.rmit.sef.stocktradingserver.core.model.Entity;
 
-public class RegisterCmd extends Command<RegisterResp> {
+public class SystemUser extends Entity {
     private String firstName;
     private String lastName;
     private String username;
     private String password;
     private String company;
+    private String lastSeenOn;
 
     public String getFirstName() {
         return firstName;

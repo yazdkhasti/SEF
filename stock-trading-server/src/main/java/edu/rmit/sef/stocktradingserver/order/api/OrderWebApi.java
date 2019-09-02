@@ -16,7 +16,7 @@ public class OrderWebApi extends BaseApiController {
 
     @GetMapping("/")
     public CreateEntityResp get() throws ExecutionException, InterruptedException {
-        CreateEntityResp res = getCommandService().Execute(new CreateOrder()).get();
+        CreateEntityResp res = getCommandService().execute(new CreateOrder()).get();
         return res;
     }
 

@@ -5,26 +5,34 @@ import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
 import edu.rmit.sef.stocktradingserver.core.api.BaseApiController;
 
+import edu.rmit.sef.stocktradingserver.user.command.RegisterCmd;
+import edu.rmit.sef.stocktradingserver.user.command.RegisterResp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequestMapping(path = "user")
 public class UserWebApi extends BaseApiController {
-
-
 
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticateResp> generateJwtToken(@RequestBody AuthenticateCmd authenticateCmd) {
 
-        AuthenticateResp authenticateResp = getCommandService().Execute(authenticateCmd).join();
+        AuthenticateResp authenticateResp = getCommandService().execute(authenticateCmd).join();
+        return ok(authenticateResp);
 
-        return new ResponseEntity(authenticateResp, HttpStatus.OK);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResp> register(@RequestBody RegisterCmd vm) {
+        RegisterResp resp = getCommandService().execute(vm).join();
+        return ok(resp);
+
+    }
 
 }

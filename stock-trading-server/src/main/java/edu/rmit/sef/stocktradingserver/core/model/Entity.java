@@ -1,12 +1,29 @@
 package edu.rmit.sef.stocktradingserver.core.model;
 
+import edu.rmit.command.core.CommandUtil;
+import org.springframework.data.annotation.Id;
+
 import java.util.Date;
+import java.util.UUID;
 
 public abstract class Entity {
+
+    @Id
+    private String id;
     private Date createdOn;
     private Date modifiedOn;
     private String createdBy;
     private String modifiedBy;
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public Date getCreatedOn() {
         return createdOn;
@@ -39,4 +56,21 @@ public abstract class Entity {
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
+
+    public static <T extends Entity> T newEntity(String userId, Class<T> tClass) {
+        try {
+            T entity = tClass.newInstance();
+            Date date = new Date();
+            entity.setCreatedBy(userId);
+            entity.setModifiedBy(userId);
+            entity.setCreatedOn(date);
+            entity.setModifiedOn(date);
+            entity.setId(UUID.randomUUID().toString());
+            return entity;
+        } catch (Exception ex) {
+            CommandUtil.throwCommandExecutionException(ex);
+        }
+        return null;
+    }
+
 }

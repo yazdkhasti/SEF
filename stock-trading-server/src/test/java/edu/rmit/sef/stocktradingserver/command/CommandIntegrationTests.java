@@ -2,8 +2,8 @@ package edu.rmit.sef.stocktradingserver.command;
 
 
 import edu.rmit.command.core.ICommandService;
-import edu.rmit.command.core.NullCmd;
-import edu.rmit.command.core.NullResp;
+import edu.rmit.command.core.TestCmd;
+import edu.rmit.command.core.TestResp;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +21,8 @@ public class CommandIntegrationTests {
     @Test
     public void TestNullCommand() {
         String testValue = "test";
-        NullCmd cmd = new NullCmd(testValue);
-        NullResp resp = commandService.Execute(cmd).join();
+        TestCmd cmd = new TestCmd(testValue);
+        TestResp resp = commandService.execute(cmd).join();
         Assert.assertNotNull(resp);
         Assert.assertEquals(resp.getTarget(), cmd.getTarget());
     }

@@ -1,6 +1,7 @@
 package edu.rmit.command.core;
 
 
+import edu.rmit.command.exception.CommandExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class CommandStore implements ICommandStore {
             try {
                 executeInternal(context);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new CommandExecutionException(e);
             }
             return context.getCommand().getResponse();
         };

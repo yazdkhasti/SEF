@@ -1,12 +1,12 @@
 package edu.rmit.command.core;
 
-public class NullCmd extends Command<NullResp> {
+public class TestCmd extends Command<TestResp> {
 
 
 
     private Object target;
 
-    public NullCmd(Object target) {
+    public TestCmd(Object target) {
         if (target == null) {
             CommandUtil.assertNotNullArgument(target);
         }

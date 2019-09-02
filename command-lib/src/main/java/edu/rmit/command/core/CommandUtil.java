@@ -13,4 +13,12 @@ public class CommandUtil {
     public static void throwCommandExecutionException(String msg) {
         throw new CommandExecutionException(msg);
     }
+
+    public static void throwCommandExecutionException() {
+        throwCommandExecutionException("An exception occured.");
+    }
+
+    public static void throwCommandExecutionException(Exception ex) {
+        throw new CommandExecutionException(ex);
+    }
 }
