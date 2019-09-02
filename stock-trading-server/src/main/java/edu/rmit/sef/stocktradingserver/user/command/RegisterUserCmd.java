@@ -2,7 +2,7 @@ package edu.rmit.sef.stocktradingserver.user.command;
 
 import edu.rmit.command.core.Command;
 
-public class RegisterCmd extends Command<RegisterResp> {
+public class RegisterUserCmd extends Command<RegisterUserResp> {
     private String firstName;
     private String lastName;
     private String username;

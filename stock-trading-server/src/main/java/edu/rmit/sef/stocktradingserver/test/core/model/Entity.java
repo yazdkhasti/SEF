@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.core.model;
+package edu.rmit.sef.stocktradingserver.test.core.model;
 
 import edu.rmit.command.core.CommandUtil;
 import org.springframework.data.annotation.Id;

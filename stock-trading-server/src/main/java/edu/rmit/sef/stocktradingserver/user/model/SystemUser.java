@@ -1,6 +1,6 @@
 package edu.rmit.sef.stocktradingserver.user.model;
 
-import edu.rmit.sef.stocktradingserver.core.model.Entity;
+import edu.rmit.sef.stocktradingserver.test.core.model.Entity;
 
 public class SystemUser extends Entity {
     private String firstName;

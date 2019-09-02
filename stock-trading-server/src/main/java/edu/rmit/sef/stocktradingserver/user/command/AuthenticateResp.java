@@ -1,6 +1,6 @@
 package edu.rmit.sef.stocktradingserver.user.command;
 
-import edu.rmit.sef.stocktradingserver.core.command.CommandResp;
+import edu.rmit.sef.stocktradingserver.test.core.command.CommandResp;
 
 public class AuthenticateResp extends CommandResp {
 

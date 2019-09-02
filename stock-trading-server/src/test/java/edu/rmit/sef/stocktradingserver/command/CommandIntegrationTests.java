@@ -2,8 +2,10 @@ package edu.rmit.sef.stocktradingserver.command;
 
 
 import edu.rmit.command.core.ICommandService;
+import edu.rmit.command.core.ICommandServiceFactory;
 import edu.rmit.command.core.TestCmd;
 import edu.rmit.command.core.TestResp;
+import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +15,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class CommandIntegrationTests {
+public class CommandIntegrationTests extends BaseTest {
 
-    @Autowired
-    private ICommandService commandService;
 
     @Test
-    public void TestNullCommand() {
+    public void TestCommandSystem() {
+        ICommandService commandService = getCommandService();
         String testValue = "test";
         TestCmd cmd = new TestCmd(testValue);
         TestResp resp = commandService.execute(cmd).join();

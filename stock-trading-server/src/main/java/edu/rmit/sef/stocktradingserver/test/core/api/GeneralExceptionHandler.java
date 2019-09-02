@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.core.api;
+package edu.rmit.sef.stocktradingserver.test.core.api;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

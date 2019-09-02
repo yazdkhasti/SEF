@@ -3,11 +3,10 @@ package edu.rmit.sef.stocktradingserver.user.api;
 
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
-import edu.rmit.sef.stocktradingserver.core.api.BaseApiController;
+import edu.rmit.sef.stocktradingserver.test.core.api.BaseApiController;
 
-import edu.rmit.sef.stocktradingserver.user.command.RegisterCmd;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterResp;
-import org.springframework.http.HttpStatus;
+import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;
+import edu.rmit.sef.stocktradingserver.user.command.RegisterUserResp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,8 +28,8 @@ public class UserWebApi extends BaseApiController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResp> register(@RequestBody RegisterCmd vm) {
-        RegisterResp resp = getCommandService().execute(vm).join();
+    public ResponseEntity<RegisterUserResp> register(@RequestBody RegisterUserCmd vm) {
+        RegisterUserResp resp = getCommandService().execute(vm).join();
         return ok(resp);
 
     }

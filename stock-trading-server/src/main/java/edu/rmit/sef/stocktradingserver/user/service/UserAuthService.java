@@ -1,22 +1,20 @@
 package edu.rmit.sef.stocktradingserver.user.service;
 
 import edu.rmit.command.core.CommandUtil;
-import edu.rmit.command.core.ICommandExecutionContext;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
-import edu.rmit.sef.stocktradingserver.core.model.Entity;
+import edu.rmit.sef.stocktradingserver.test.core.model.Entity;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterCmd;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterResp;
+import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;
+import edu.rmit.sef.stocktradingserver.user.command.RegisterUserResp;
 import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
-import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
 import edu.rmit.sef.stocktradingserver.user.model.SystemUser;
 import edu.rmit.sef.stocktradingserver.user.repo.UserRepository;
 import edu.rmit.sef.stocktradingserver.user.util.JwtUtil;
+import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.spi.SourceGetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +27,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 
 @Configuration
@@ -112,9 +109,9 @@ public class UserAuthService implements UserDetailsService {
     }
 
     @Bean
-    public ICommandHandler<RegisterCmd> registerCmdHandler() {
+    public ICommandHandler<RegisterUserCmd> registerCmdHandler() {
         return executionContext -> {
-            RegisterCmd cmd = executionContext.getCommand();
+            RegisterUserCmd cmd = executionContext.getCommand();
             String username = cmd.getUsername();
             SystemUser user = userRepository.findUserByUsername(username);
 
@@ -129,7 +126,7 @@ public class UserAuthService implements UserDetailsService {
 
             userRepository.insert(user);
 
-            RegisterResp resp = new RegisterResp(user.getId());
+            RegisterUserResp resp = new RegisterUserResp(user.getId());
             cmd.setResponse(resp);
 
         };

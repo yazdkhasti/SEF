@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.core.repo;
+package edu.rmit.sef.stocktradingserver.test.core.repo;
 
 public interface IRepository<T, K> {
 
