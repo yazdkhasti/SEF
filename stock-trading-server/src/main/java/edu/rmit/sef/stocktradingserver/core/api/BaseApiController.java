@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.test.core.api;
+package edu.rmit.sef.stocktradingserver.core.api;
 
 
 import edu.rmit.command.core.ICommandService;

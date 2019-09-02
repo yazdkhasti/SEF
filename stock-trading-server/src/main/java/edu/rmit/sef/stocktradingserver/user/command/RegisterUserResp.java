@@ -1,6 +1,6 @@
 package edu.rmit.sef.stocktradingserver.user.command;
 
-import edu.rmit.sef.stocktradingserver.test.core.command.CreateEntityResp;
+import edu.rmit.sef.stocktradingserver.core.command.CreateEntityResp;
 
 public class RegisterUserResp extends CreateEntityResp {
 

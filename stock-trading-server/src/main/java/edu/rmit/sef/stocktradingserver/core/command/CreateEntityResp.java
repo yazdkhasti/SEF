@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.test.core.command;
+package edu.rmit.sef.stocktradingserver.core.command;
 
 public class CreateEntityResp  {
 

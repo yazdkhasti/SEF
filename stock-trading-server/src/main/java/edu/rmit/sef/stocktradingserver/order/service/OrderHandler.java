@@ -3,7 +3,7 @@ package edu.rmit.sef.stocktradingserver.order.service;
 import edu.rmit.command.core.ICommandExecutionContext;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.sef.stocktradingserver.order.command.CreateOrder;
-import edu.rmit.sef.stocktradingserver.test.core.command.CreateEntityResp;
+import edu.rmit.sef.stocktradingserver.core.command.CreateEntityResp;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.test.core.config;
+package edu.rmit.sef.stocktradingserver.core.config;
 
 
 import edu.rmit.command.core.ICommandService;

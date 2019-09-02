@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingserver.test.core.config;
+package edu.rmit.sef.stocktradingserver.core.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

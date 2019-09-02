@@ -3,7 +3,7 @@ package edu.rmit.sef.stocktradingserver.user.service;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
-import edu.rmit.sef.stocktradingserver.test.core.model.Entity;
+import edu.rmit.sef.stocktradingserver.core.model.Entity;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
 import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;

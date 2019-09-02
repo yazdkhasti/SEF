@@ -3,7 +3,7 @@ package edu.rmit.sef.stocktradingserver.user.api;
 
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
 import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
-import edu.rmit.sef.stocktradingserver.test.core.api.BaseApiController;
+import edu.rmit.sef.stocktradingserver.core.api.BaseApiController;
 
 import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;
 import edu.rmit.sef.stocktradingserver.user.command.RegisterUserResp;
