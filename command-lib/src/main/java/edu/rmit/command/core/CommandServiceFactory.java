@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommandServiceFactory implements ICommandServiceFactory {
 
+    @Autowired
+    private IUserIdResolver userIdResolver;
 
     @Autowired
     private ICommandStore store;
@@ -16,8 +18,9 @@ public class CommandServiceFactory implements ICommandServiceFactory {
 
     @Override
     public ICommandService createService() {
-        return new CommandService(null, null, store, executionContextFactory);
+        return new CommandService(userIdResolver.getId(), null, store, executionContextFactory);
     }
+
 
     @Override
     public ICommandService createService(String userId) {

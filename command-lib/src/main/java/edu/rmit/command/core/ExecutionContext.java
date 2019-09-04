@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.UUID;
 
 
-
 public class ExecutionContext<T extends ICommand> implements ICommandExecutionContext<T> {
 
 
@@ -17,16 +16,15 @@ public class ExecutionContext<T extends ICommand> implements ICommandExecutionCo
     private IServiceResolver serviceResolver;
     private final UUID operationId;
     private T command;
-
-    @Autowired
     private ICommandServiceFactory commandServiceFactory;
 
-    public ExecutionContext(@NotNull T command, String userId,@NotNull IServiceResolver serviceResolver, IExecutionContext parentContext) {
+    public ExecutionContext(@NotNull T command, String userId, @NotNull IServiceResolver serviceResolver, ICommandServiceFactory commandServiceFactory, IExecutionContext parentContext) {
 
         this.userId = userId;
         this.command = command;
         this.parentContext = parentContext;
         this.serviceResolver = serviceResolver;
+        this.commandServiceFactory = commandServiceFactory;
         this.startedOn = new Date();
         this.operationId = UUID.randomUUID();
     }

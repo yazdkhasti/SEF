@@ -10,14 +10,16 @@ public class ExecutionContextFactory implements IExecutionContextFactory {
     @Autowired
     private IServiceResolver serviceResolver;
 
+    @Autowired
+    private ICommandServiceFactory commandServiceFactory;
 
     @Override
     public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId) {
-        return new ExecutionContext<>(command, userId, serviceResolver, null);
+        return create(command, userId, null);
     }
 
     @Override
     public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId, IExecutionContext parent) {
-        return new ExecutionContext<>(command, userId, serviceResolver, parent);
+        return new ExecutionContext<>(command, userId, serviceResolver, commandServiceFactory, parent);
     }
 }

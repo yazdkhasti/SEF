@@ -3,21 +3,26 @@ package edu.rmit.sef.stocktradingserver.user.service;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
-import edu.rmit.sef.stocktradingserver.core.model.Entity;
-import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
-import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterUserResp;
+import edu.rmit.sef.core.command.PublishEventCmd;
+import edu.rmit.sef.core.model.Entity;
+import edu.rmit.sef.core.model.SocketMessage;
+import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
+import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
+import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMalformedException;
+import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMissingException;
+import edu.rmit.sef.user.command.*;
 import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
-import edu.rmit.sef.stocktradingserver.user.model.SystemUser;
+import edu.rmit.sef.user.model.SystemUser;
 import edu.rmit.sef.stocktradingserver.user.repo.UserRepository;
-import edu.rmit.sef.stocktradingserver.user.util.JwtUtil;
 import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
 
+import io.jsonwebtoken.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -28,6 +33,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Date;
+import java.util.Optional;
+
 
 @Configuration
 public class UserAuthService implements UserDetailsService {
@@ -35,9 +43,6 @@ public class UserAuthService implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -48,6 +53,50 @@ public class UserAuthService implements UserDetailsService {
     @Autowired
     private ModelMapper modelMapper;
 
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.token.validity}")
+    private long tokenValidity;
+
+
+    public String generateToken(SystemUser details) {
+        Claims claims = Jwts.claims()
+                .setSubject(details.getUsername())
+                .setId(details.getId());
+
+        //claims.put("authorities", details.getAuthorities());
+
+        long nowMillis = System.currentTimeMillis();
+        long expMillis = nowMillis + tokenValidity;
+        Date exp = new Date(expMillis);
+
+        return Jwts.builder().setClaims(claims).setIssuedAt(new Date(nowMillis)).setExpiration(exp)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+    }
+
+
+    public Claims validateToken(final String token) {
+
+        Jws<Claims> claims = null;
+
+        try {
+            claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+        } catch (SignatureException ex) {
+            throw new JwtTokenMalformedException("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            throw new JwtTokenMalformedException("Invalid JWT token");
+        } catch (ExpiredJwtException ex) {
+            throw new JwtTokenMalformedException("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            throw new JwtTokenMalformedException("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            throw new JwtTokenMissingException("JWT claims string is empty.");
+        }
+
+        return claims.getBody();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,6 +113,8 @@ public class UserAuthService implements UserDetailsService {
                     .password(user.getPassword())
                     .authorities("default")
                     .build();
+        } else {
+            throw new UsernameNotFoundException("User not found.");
         }
 
         return userDetails;
@@ -97,13 +148,15 @@ public class UserAuthService implements UserDetailsService {
                 throw new InvalidUserCredentialsException("Invalid Credentials");
             }
 
-            UserDetails userDetails = loadUserByUsername(cmd.getUsername());
+            SystemUser user = userRepository.findUserByUsername(cmd.getUsername());
+            String token = generateToken(user);
 
-            String token = jwtUtil.generateToken(userDetails);
-
-            AuthenticateResp resp = new AuthenticateResp(userDetails.getUsername(), token);
-
+            AuthenticateResp resp = new AuthenticateResp(user.getFirstName(), user.getLastName(), token, user.getLastSeenOn());
             cmd.setResponse(resp);
+
+
+            user.setLastSeenOn(new Date());
+            userRepository.save(user);
         };
 
     }
@@ -131,5 +184,38 @@ public class UserAuthService implements UserDetailsService {
 
         };
     }
+
+    @Bean
+    public ICommandHandler<ValidateTokenCmd> validateTokenCmdHandler() {
+        return executionContext -> {
+
+            ValidateTokenCmd cmd = executionContext.getCommand();
+            String token = cmd.getToken();
+
+            Claims body = validateToken(token);
+
+            Optional<SystemUser> user = userRepository.findById(body.getId());
+
+            ValidateTokenResp resp = new ValidateTokenResp(user.get());
+            cmd.setResponse(resp);
+
+        };
+    }
+
+
+    @Bean
+    public ICommandHandler<FindUserByIdCmd> findUserByIdCmdHandler() {
+        return executionContext -> {
+
+            FindUserByIdCmd cmd = executionContext.getCommand();
+            String id = cmd.getId();
+            Optional<SystemUser> user = userRepository.findById(id);
+
+            FindUserByIdResp resp = new FindUserByIdResp(user.get());
+            cmd.setResponse(resp);
+
+        };
+    }
+
 
 }

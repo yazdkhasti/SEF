@@ -1,5 +1,6 @@
 package edu.rmit.command.core;
 
+import edu.rmit.command.exception.AppExecutionException;
 import edu.rmit.command.exception.CommandExecutionException;
 
 public class CommandUtil {
@@ -20,5 +21,9 @@ public class CommandUtil {
 
     public static void throwCommandExecutionException(Exception ex) {
         throw new CommandExecutionException(ex);
+    }
+
+    public static void throwAppExecutionException(Exception ex) {
+        throw new AppExecutionException(ex);
     }
 }

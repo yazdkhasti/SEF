@@ -2,7 +2,7 @@ package edu.rmit.sef.stocktradingserver.order.api;
 
 
 import edu.rmit.sef.stocktradingserver.core.api.BaseApiController;
-import edu.rmit.sef.stocktradingserver.core.command.CreateEntityResp;
+import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.stocktradingserver.order.command.CreateOrder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

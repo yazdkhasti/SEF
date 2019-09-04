@@ -1,12 +1,12 @@
 package edu.rmit.sef.stocktradingserver.user.api;
 
 
-import edu.rmit.sef.stocktradingserver.user.command.AuthenticateCmd;
-import edu.rmit.sef.stocktradingserver.user.command.AuthenticateResp;
+import edu.rmit.sef.user.command.AuthenticateCmd;
+import edu.rmit.sef.user.command.AuthenticateResp;
 import edu.rmit.sef.stocktradingserver.core.api.BaseApiController;
 
-import edu.rmit.sef.stocktradingserver.user.command.RegisterUserCmd;
-import edu.rmit.sef.stocktradingserver.user.command.RegisterUserResp;
+import edu.rmit.sef.user.command.RegisterUserCmd;
+import edu.rmit.sef.user.command.RegisterUserResp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

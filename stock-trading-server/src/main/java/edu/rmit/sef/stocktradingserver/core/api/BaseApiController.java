@@ -15,7 +15,7 @@ public abstract class BaseApiController {
 
 
     protected ICommandService getCommandService() {
-        return commandServiceFactory.createService(null);
+        return commandServiceFactory.createService();
     }
 
     public <R> ResponseEntity<R> ok(R response) {

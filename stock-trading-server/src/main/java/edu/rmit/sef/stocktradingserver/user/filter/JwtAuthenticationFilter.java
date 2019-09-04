@@ -7,9 +7,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.rmit.sef.stocktradingserver.user.util.JwtUtil;
+import edu.rmit.command.core.ICommandService;
+import edu.rmit.command.core.ICommandServiceFactory;
+import edu.rmit.sef.stocktradingserver.core.util.SecurityUtil;
+import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
+import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMissingException;
+import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,14 +25,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
-    private JwtUtil jwtUtil;
+    private ICommandServiceFactory commandServiceFactory;
 
-    @Autowired
-    private UserDetailsService userAuthService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,23 +40,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new JwtTokenMissingException("No JWT token found in the request headers");
         }
 
-        String token = header.substring(7);
+        String token = SecurityUtil.getBearerToken(header);
 
-        // Optional - verification
-        jwtUtil.validateToken(token);
+        ICommandService commandService = commandServiceFactory.createService();
 
-        //UserVo userVo = jwtUtil.getUser(token);
+        ValidateTokenCmd validateTokenCmd = new ValidateTokenCmd(token);
+        ValidateTokenResp validateTokenResp = commandService.execute(validateTokenCmd).join();
 
-        UserDetails userDetails = userAuthService.loadUserByUsername("");
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+        SystemUser user = validateTokenResp.getUser();
 
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-        }
+        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(user);
+
+        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityUtil.setAuthentication(authenticationToken);
 
         filterChain.doFilter(request, response);
     }

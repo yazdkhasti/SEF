@@ -36,7 +36,7 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/user/login", "/user/register");
+        web.ignoring().antMatchers("/user/login", "/user/register", "/ws");
     }
 
     @Autowired
@@ -46,13 +46,17 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests()
-                .antMatchers("/user/login", "/user/register").permitAll()
-                .anyRequest().authenticated()
+        http.authorizeRequests()
+                .antMatchers("/user/login", "/user/register","/ws").permitAll()
+                .anyRequest().permitAll()
                 .and()
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+//                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+//                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .httpBasic().disable()
+                .csrf().disable();
+
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
