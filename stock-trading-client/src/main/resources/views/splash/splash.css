@@ -1,0 +1,17 @@
+.splash {
+  -fx-padding: 20;
+}
+
+.splash-label{
+  -fx-font-size:40;
+  -fx-font-weight: bold;
+  -fx-border-style: solid;
+  -fx-border-color: black;
+  -fx-border-width: 0 0 2 0;
+}
+
+.splash-background{
+-fx-background-image: url("/images/app-icon.png");
+ -fx-background-repeat: no-repeat;
+ -fx-background-size: 412px 412px;
+}

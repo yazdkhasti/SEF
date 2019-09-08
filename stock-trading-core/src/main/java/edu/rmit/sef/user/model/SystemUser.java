@@ -3,7 +3,9 @@ package edu.rmit.sef.user.model;
 import edu.rmit.sef.core.model.Entity;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class SystemUser extends Entity {
     private String firstName;
@@ -12,6 +14,13 @@ public class SystemUser extends Entity {
     private String password;
     private String company;
     private Date lastSeenOn;
+    private Date previousLastSeenOn;
+    private List<String> authorities;
+
+
+    public SystemUser() {
+        authorities = new ArrayList<String>();
+    }
 
     public String getFirstName() {
         return firstName;
@@ -58,22 +67,24 @@ public class SystemUser extends Entity {
     }
 
     public void setLastSeenOn(Date lastSeenOn) {
+        this.previousLastSeenOn = this.lastSeenOn;
         this.lastSeenOn = lastSeenOn;
     }
 
+    public List<String> getAuthorities() {
+        return authorities;
+    }
 
-    public SystemUserPrincipal toPrincipal() {
-        return new SystemUserPrincipal() {
-            public String getId() {
-                return SystemUser.this.getId();
-            }
-            public String getUsername() {
-                return SystemUser.this.getUsername();
-            }
-            public String getName() {
-                return SystemUser.this.getId();
-            }
-        };
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    public Date getPreviousLastSeenOn() {
+        return previousLastSeenOn;
+    }
+
+    public void setPreviousLastSeenOn(Date secondLastSeenOn) {
+        this.previousLastSeenOn = secondLastSeenOn;
     }
 
 

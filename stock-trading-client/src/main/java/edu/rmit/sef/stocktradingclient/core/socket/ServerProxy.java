@@ -20,41 +20,21 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @Configuration
-public class ServerProxyHandler {
-
-
-    @Value("${edu.rmit.sef.stocktrading.server.auth}")
-    private String authenticateUrl;
-
-    @Value("${edu.rmit.sef.stocktrading.server.register}")
-    private String registerUrl;
+public class ServerProxy {
 
 
     @Autowired
     private SocketConnection socketConnection;
 
-    private RestTemplate restTemplate;
-    private HttpHeaders headers;
-
-    public ServerProxyHandler() {
-        restTemplate = new RestTemplate();
-        this.headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Accept", "*/*");
-    }
 
     @Bean
-    public ICommandHandler<AuthenticateCmd> authenticateCmdHandler() {
-
+    public ICommandPostHandler<AuthenticateCmd> postAuthenticateHandler() {
         return executionContext -> {
-
-            AuthenticateCmd cmd = executionContext.getCommand();
-            HttpEntity<AuthenticateCmd> request = new HttpEntity<>(cmd, headers);
-            AuthenticateResp authenticateResp = restTemplate.postForObject(authenticateUrl, request, AuthenticateResp.class);
-            cmd.setResponse(authenticateResp);
-
+                AuthenticateCmd authenticateCmd = executionContext.getCommand();
+                String token = authenticateCmd.getResponse().getToken();
+                ConnectToServerCmd connectToServerCmd = new ConnectToServerCmd(token);
+                executionContext.getCommandService().execute(connectToServerCmd).join();
         };
-
     }
 
     @Bean
@@ -76,17 +56,6 @@ public class ServerProxyHandler {
         };
     }
 
-    @Bean
-    public ICommandHandler<RegisterUserCmd> registerCmdHandler() {
-
-        return executionContext -> {
-            RegisterUserCmd cmd = executionContext.getCommand();
-            HttpEntity<RegisterUserCmd> request = new HttpEntity<>(cmd, headers);
-            RegisterUserResp registerUserResp = restTemplate.postForObject(registerUrl, request, RegisterUserResp.class);
-            cmd.setResponse(registerUserResp);
-        };
-
-    }
 
     @Bean
     public ICommandHandler<TestCmd> testCmdHandler() {
@@ -95,5 +64,6 @@ public class ServerProxyHandler {
             socketConnection.executeCommand(cmd);
         };
     }
+
 
 }

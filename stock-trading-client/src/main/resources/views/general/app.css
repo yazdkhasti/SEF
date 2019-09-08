@@ -1,0 +1,64 @@
+
+
+GridPane{
+-fx-vgap:10;
+-fx-hgap:10;
+-fx-padding:25;
+}
+
+*{
+-fx-font-size:12.5;
+}
+
+.h1 {
+-fx-font-size:3em;
+}
+
+.h2 {
+-fx-font-size:2em;
+}
+
+.h3 {
+-fx-font-size:1.3em;
+}
+
+.bold {
+-fx-font-weight: bold;
+}
+
+.error  {
+-fx-text-fill: #f00;
+-fx-fill: #f00;
+}
+
+.main-pane .left-pane{
+ -fx-background-color:rgb(43,87,154);
+ -fx-padding:25;
+ -fx-text-fill: #fff;
+ -fx-fill: #fff;
+ }
+
+ .main-pane .left-pane Text{
+  -fx-text-fill: #fff;
+  -fx-fill: #fff;
+  }
+
+.main-pane .center-pane{
+ -fx-background-color:rgb(243,243,243);
+ -fx-padding:25;
+ }
+
+.left-pane .client-name{
+-fx-text-fill: #fff;
+-fx-fill: #fff;
+}
+
+
+.left-pane .last-seen{
+-fx-text-fill: #fff;
+-fx-fill: #fff;
+}
+
+.left-pane .link{
+-fx-font-size:1.3em;
+}

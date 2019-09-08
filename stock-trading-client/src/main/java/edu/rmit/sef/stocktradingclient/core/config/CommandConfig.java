@@ -2,10 +2,6 @@ package edu.rmit.sef.stocktradingclient.core.config;
 
 
 import edu.rmit.command.core.*;
-import edu.rmit.sef.stocktradingclient.core.command.ConnectToServerCmd;
-import edu.rmit.sef.user.command.AuthenticateCmd;
-import edu.rmit.sef.user.command.AuthenticateResp;
-import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;

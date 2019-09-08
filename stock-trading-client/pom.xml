@@ -43,6 +43,21 @@
 			<artifactId>stock-trading-core</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.jfxtras/jmetro -->
+		<!-- https://mvnrepository.com/artifact/org.jfxtras/jmetro -->
+		<dependency>
+			<groupId>org.jfxtras</groupId>
+			<artifactId>jmetro</artifactId>
+			<version>5.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>8.40.15</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

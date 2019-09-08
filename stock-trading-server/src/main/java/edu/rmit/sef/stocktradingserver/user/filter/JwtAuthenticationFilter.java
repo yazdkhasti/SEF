@@ -9,17 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.ICommandServiceFactory;
-import edu.rmit.sef.stocktradingserver.core.util.SecurityUtil;
+import edu.rmit.sef.stocktradingserver.core.security.SecurityUtil;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMissingException;
-import edu.rmit.sef.user.model.SystemUser;
+import edu.rmit.sef.user.model.SystemUserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -48,10 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ValidateTokenResp validateTokenResp = commandService.execute(validateTokenCmd).join();
 
 
-        SystemUser user = validateTokenResp.getUser();
+        SystemUserPrincipal principal = validateTokenResp.getUser();
 
 
-        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(user);
+        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(principal);
 
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

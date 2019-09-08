@@ -1,8 +1,9 @@
 package edu.rmit.command.core;
 
 public abstract class CommandFilter {
-    void beforeExecution(IExecutionContext context) { }
+    public void beforeExecution(IExecutionContext context) {
+    }
 
-    void afterExecution(IExecutionContext context) { }
-
+    public void afterExecution(IExecutionContext context) {
+    }
 }

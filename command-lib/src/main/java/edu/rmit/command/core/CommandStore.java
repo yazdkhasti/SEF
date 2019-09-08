@@ -54,12 +54,13 @@ public class CommandStore implements ICommandStore {
         return queue.post(task);
     }
 
-    private <T extends ICommand> void executeInternal(ICommandExecutionContext<T> context) throws Exception {
+    private <T extends ICommand> void executeInternal(ICommandExecutionContext<T> context) {
         executePreHandlers(context);
         executeHandlers(context);
+        executePostHandlers(context);
     }
 
-    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context) throws Exception {
+    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context)  {
         ResolvableType handlerResolver = ResolvableType.forClassWithGenerics(ICommandHandler.class, context.getCommand().getClass());
         List<ICommandHandler<T>> handlers = serviceResolver.getServices(handlerResolver);
         List<CommandFilter> filters = serviceResolver.getServices(CommandFilter.class);
@@ -74,10 +75,18 @@ public class CommandStore implements ICommandStore {
         }
     }
 
-    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context) throws Exception {
+    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context)  {
         ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPreHandler.class, context.getCommand().getClass());
-        List<ICommandHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
-        for (ICommandHandler<T> handler : preHandlers) {
+        List<ICommandPreHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
+        for (ICommandPreHandler<T> handler : preHandlers) {
+            handler.handle(context);
+        }
+    }
+
+    private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context)  {
+        ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPostHandler.class, context.getCommand().getClass());
+        List<ICommandPostHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
+        for (ICommandPostHandler<T> handler : preHandlers) {
             handler.handle(context);
         }
     }

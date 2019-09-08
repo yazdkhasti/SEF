@@ -3,10 +3,10 @@ package edu.rmit.sef.stocktradingserver.core.socket;
 
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.ICommandServiceFactory;
-import edu.rmit.sef.stocktradingserver.core.util.SecurityUtil;
+import edu.rmit.sef.stocktradingserver.core.security.SecurityUtil;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
-import edu.rmit.sef.user.model.SystemUser;
+import edu.rmit.sef.user.model.SystemUserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -18,12 +18,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-
-import java.security.Principal;
-import java.util.Collections;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
@@ -51,11 +46,8 @@ public class WebSocketAuthenticationSecurityConfig extends WebSocketConfig {
                         ValidateTokenCmd validateTokenCmd = new ValidateTokenCmd(token);
                         ICommandService commandService = commandServiceFactory.createService();
                         ValidateTokenResp validateTokenResp = commandService.execute(validateTokenCmd).join();
-                        SystemUser user = validateTokenResp.getUser();
-
-
-                        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(user);
-
+                        SystemUserPrincipal principal = validateTokenResp.getUser();
+                        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(principal);
                         accessor.setUser(authenticationToken);
 
                     }

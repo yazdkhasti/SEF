@@ -1,16 +1,17 @@
 package edu.rmit.sef.stocktradingserver.user.command;
 
-import edu.rmit.sef.user.model.SystemUser;
+
+import edu.rmit.sef.user.model.SystemUserPrincipal;
 
 public class ValidateTokenResp {
 
-    private SystemUser user;
+    private SystemUserPrincipal principal;
 
-    public ValidateTokenResp(SystemUser user) {
-        this.user = user;
+    public ValidateTokenResp(SystemUserPrincipal user) {
+        this.principal = user;
     }
 
-    public SystemUser getUser() {
-        return user;
+    public SystemUserPrincipal getUser() {
+        return principal;
     }
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/command-lib/command-lib.iml" filepath="$PROJECT_DIR$/command-lib/command-lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/stock-trading-client/stock-trading-client.iml" filepath="$PROJECT_DIR$/stock-trading-client/stock-trading-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/stock-trading-core/stock-trading-core.iml" filepath="$PROJECT_DIR$/stock-trading-core/stock-trading-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/stock-trading-server/stock-trading-server.iml" filepath="$PROJECT_DIR$/stock-trading-server/stock-trading-server.iml" />
     </modules>
   </component>

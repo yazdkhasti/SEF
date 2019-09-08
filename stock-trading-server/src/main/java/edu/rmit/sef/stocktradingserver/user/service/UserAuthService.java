@@ -3,9 +3,8 @@ package edu.rmit.sef.stocktradingserver.user.service;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
-import edu.rmit.sef.core.command.PublishEventCmd;
 import edu.rmit.sef.core.model.Entity;
-import edu.rmit.sef.core.model.SocketMessage;
+import edu.rmit.sef.core.security.Authority;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMalformedException;
@@ -16,13 +15,13 @@ import edu.rmit.sef.user.model.SystemUser;
 import edu.rmit.sef.stocktradingserver.user.repo.UserRepository;
 import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
 
+import edu.rmit.sef.user.model.SystemUserPrincipal;
 import io.jsonwebtoken.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -34,6 +33,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -60,13 +60,16 @@ public class UserAuthService implements UserDetailsService {
     @Value("${jwt.token.validity}")
     private long tokenValidity;
 
+    @Value("${edu.rmit.sef.stocktrading.server.admin.password}")
+    private String defaultAdminPassword;
+
 
     public String generateToken(SystemUser details) {
         Claims claims = Jwts.claims()
                 .setSubject(details.getUsername())
                 .setId(details.getId());
 
-        //claims.put("authorities", details.getAuthorities());
+        claims.put("authorities", details.getAuthorities());
 
         long nowMillis = System.currentTimeMillis();
         long expMillis = nowMillis + tokenValidity;
@@ -124,10 +127,18 @@ public class UserAuthService implements UserDetailsService {
     public ICommandHandler<InitCmd> initHandler() {
 
         return executionContext -> {
-
-
-//            modelMapper.createTypeMap(RegisterCmd.class, SystemUser.class)
-//                    .addMapping((s) -> s.getPassword(), (d, p) -> d.setPassword(passwordEncoder.encode((String) p)));
+            if (userRepository.count() == 0) {
+                RegisterUserCmd registerUserCmd = new RegisterUserCmd();
+                registerUserCmd.setFirstName("System");
+                registerUserCmd.setLastName("Admin");
+                registerUserCmd.setUsername("admin");
+                registerUserCmd.setPassword(defaultAdminPassword);
+                registerUserCmd.setCompany("RMIT");
+                RegisterUserResp registerUserResp = executionContext.getCommandService().execute(registerUserCmd).join();
+                SystemUser systemUser = userRepository.findById(registerUserResp.getId()).get();
+                systemUser.getAuthorities().add(Authority.ADMIN);
+                userRepository.save(systemUser);
+            }
         };
 
     }
@@ -177,6 +188,8 @@ public class UserAuthService implements UserDetailsService {
 
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+            user.getAuthorities().add(Authority.USER);
+
             userRepository.insert(user);
 
             RegisterUserResp resp = new RegisterUserResp(user.getId());
@@ -194,9 +207,29 @@ public class UserAuthService implements UserDetailsService {
 
             Claims body = validateToken(token);
 
-            Optional<SystemUser> user = userRepository.findById(body.getId());
+            //Optional<SystemUser> user = userRepository.findById(body.getId());
 
-            ValidateTokenResp resp = new ValidateTokenResp(user.get());
+            ValidateTokenResp resp = new ValidateTokenResp(new SystemUserPrincipal() {
+                @Override
+                public String getId() {
+                    return body.getId();
+                }
+
+                @Override
+                public String getUsername() {
+                   return body.getSubject();
+                }
+
+                @Override
+                public List<String> getAuthorities() {
+                    return (List<String>) body.get("authorities");
+                }
+
+                @Override
+                public String getName() {
+                    return body.getId();
+                }
+            });
             cmd.setResponse(resp);
 
         };
@@ -204,14 +237,14 @@ public class UserAuthService implements UserDetailsService {
 
 
     @Bean
-    public ICommandHandler<FindUserByIdCmd> findUserByIdCmdHandler() {
+    public ICommandHandler<GetCurrentUserCmd> getCurrentUserCmd() {
         return executionContext -> {
 
-            FindUserByIdCmd cmd = executionContext.getCommand();
-            String id = cmd.getId();
+            GetCurrentUserCmd cmd = executionContext.getCommand();
+            String id = executionContext.getUserId();
             Optional<SystemUser> user = userRepository.findById(id);
 
-            FindUserByIdResp resp = new FindUserByIdResp(user.get());
+            GetCurrentUserResp resp = new GetCurrentUserResp(user.get());
             cmd.setResponse(resp);
 
         };

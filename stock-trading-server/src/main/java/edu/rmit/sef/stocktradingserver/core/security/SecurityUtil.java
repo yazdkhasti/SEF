@@ -1,16 +1,11 @@
-package edu.rmit.sef.stocktradingserver.core.util;
+package edu.rmit.sef.stocktradingserver.core.security;
 
 import edu.rmit.command.core.CommandUtil;
-import edu.rmit.sef.user.model.SystemUser;
+import edu.rmit.sef.user.model.SystemUserPrincipal;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.security.Principal;
-import java.util.Collections;
 
 public class SecurityUtil {
 
@@ -25,8 +20,8 @@ public class SecurityUtil {
         }
     }
 
-    public static AbstractAuthenticationToken getToken(SystemUser user) {
+    public static AbstractAuthenticationToken getToken(SystemUserPrincipal principal) {
         return new UsernamePasswordAuthenticationToken(
-                user.toPrincipal(), null, Collections.singleton((GrantedAuthority) () -> "USER"));
+                principal, null, AuthorityUtils.createAuthorityList(principal.getAuthorities().toArray(new String[0])));
     }
 }

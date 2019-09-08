@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DialogPane?>
+<?import java.lang.String?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<VBox fx:id="root"
+      styleClass="splash"
+      stylesheets="@splash.css"
+      xmlns="http://javafx.com/javafx/8.0.999-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="edu.rmit.sef.stocktradingclient.view.SplashController">
+<Label fx:id="appTitleLbl" styleClass="splash-label"></Label>
+
+    <Pane styleClass="splash-background" prefHeight="412" prefWidth="412"></Pane>
+</VBox>

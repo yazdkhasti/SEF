@@ -26,4 +26,8 @@ public class CommandUtil {
     public static void throwAppExecutionException(Exception ex) {
         throw new AppExecutionException(ex);
     }
+
+    public static void throwSecurityException() {
+        throw new SecurityException("Unauthorized.");
+    }
 }
