@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class BaseTest {
     @Autowired
-    private ICommandService commandService;
+    private ICommandServiceFactory commandServiceFactory;
 
     public ICommandService getCommandService() {
-        return commandService;
+        return commandServiceFactory.createService();
     }
 
 }

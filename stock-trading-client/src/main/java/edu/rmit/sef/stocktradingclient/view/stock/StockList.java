@@ -1,5 +1,6 @@
 package edu.rmit.sef.stocktradingclient.view.stock;
 
+import edu.rmit.sef.stock.command.AddStockCmd;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
 import edu.rmit.sef.user.command.GetCurrentUserCmd;
 import edu.rmit.sef.user.model.SystemUser;
@@ -26,6 +27,16 @@ public class StockList extends JavaFXController {
             getCommandService().execute(new GetCurrentUserCmd()).thenAccept(getCurrentUserResp -> {
                 SystemUser currentUser = getCurrentUserResp.getUser();
                 System.out.println(currentUser);
+            });
+
+            AddStockCmd cmd = new AddStockCmd();
+            cmd.setSymbol("goog");
+            cmd.setName("Google");
+            cmd.setPrice(100);
+
+            getCommandService().execute(cmd).thenAccept(getCurrentUserResp -> {
+
+                System.out.println(cmd.getResponse().getId());
             });
 
         });
