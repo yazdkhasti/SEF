@@ -45,6 +45,10 @@ public class StyleHelper {
         addClass(node, "error");
     }
 
+    public static void whiteText(Node node) {
+        addClass(node, "white-text");
+    }
+
     public static ImageView icon(String imagePath, double fitWidth) {
         Image image = new Image(StyleHelper.class.getResourceAsStream("/images/" + imagePath));
         ImageView imageView = new ImageView(image);

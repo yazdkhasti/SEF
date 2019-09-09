@@ -75,6 +75,14 @@ public class SocketConnection {
         }
     }
 
+    public void disconnect() {
+        if (isConnected) {
+            token = null;
+            stompSession.disconnect();
+            isConnected = false;
+        }
+    }
+
     private <T extends SocketMessage> CompletableFuture<T> sendMessage(SocketMessage message) {
         CompletableFuture completableFuture = getCompletableFuture();
         messageHashMap.putIfAbsent(message.getMessageId(), completableFuture);
@@ -118,12 +126,10 @@ public class SocketConnection {
         eventBus.publish(message.getName(), eventArgs);
     }
 
-
     private void completeMessage(SocketMessage resp) {
         CompletableFuture completableFuture = messageHashMap.get(resp.getMessageId());
         completableFuture.complete(resp);
     }
-
 
     public void registerTopic(Topic topic) {
         StompSession.Subscription subscription = stompSession.subscribe(topic.getName(), (StompSocketMessageHandler) result -> {

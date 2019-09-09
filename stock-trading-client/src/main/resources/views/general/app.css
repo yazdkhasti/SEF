@@ -31,6 +31,11 @@ GridPane{
 -fx-fill: #f00;
 }
 
+.white-text{
+-fx-text-fill: #fff;
+-fx-fill: #fff;
+}
+
 .main-pane .left-pane{
  -fx-background-color:rgb(43,87,154);
  -fx-padding:25;
@@ -49,16 +54,18 @@ GridPane{
  }
 
 .left-pane .client-name{
--fx-text-fill: #fff;
--fx-fill: #fff;
+
 }
 
 
 .left-pane .last-seen{
--fx-text-fill: #fff;
--fx-fill: #fff;
+
 }
 
 .left-pane .link{
 -fx-font-size:1.3em;
+-fx-background-color:rgb(18,64,120);
 }
+
+
+

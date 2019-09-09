@@ -17,13 +17,43 @@ public class SpringServiceResolver implements IServiceResolver {
     private ApplicationContext appContext;
 
     @Override
+    public <T> boolean containsBean(Class<T> tClass) {
+        ResolvableType resolvableType = ResolvableType.forClass(tClass);
+        return containsBean(resolvableType);
+    }
+
+    @Override
+    public <T> boolean containsBean(ResolvableType type) {
+        return appContext.getBeanNamesForType(type).length > 0;
+    }
+
+    @Override
     public <T> T getService(Class<T> tClass) {
-        return appContext.getBean(tClass);
+
+        ResolvableType resolvableType = ResolvableType.forClass(tClass);
+        return getService(resolvableType);
+
     }
 
     @Override
     public <T> T getService(ResolvableType type) {
-        return (T) appContext.getBean(type.resolve());
+
+        T result;
+
+        String[] typeNames = appContext.getBeanNamesForType(type);
+
+        if (typeNames.length == 0) {
+
+            result = (T) appContext.getBean(type.resolve());
+
+        } else {
+
+            result = (T) appContext.getBean(typeNames[0]);
+
+        }
+
+        return result;
+
     }
 
     @Override

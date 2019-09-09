@@ -1,6 +1,7 @@
 package edu.rmit.sef.stocktradingclient.core.user;
 
 import edu.rmit.command.core.ICommandHandler;
+import edu.rmit.command.core.NullResp;
 import edu.rmit.sef.stocktradingclient.core.socket.SocketConnection;
 import edu.rmit.sef.user.command.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,17 @@ public class UserService {
         return executionContext -> {
             GetCurrentUserCmd cmd = executionContext.getCommand();
             socketConnection.executeCommand(cmd);
+        };
+
+    }
+
+    @Bean
+    public ICommandHandler<LogoutCmd> logoutHandler() {
+
+        return executionContext -> {
+            LogoutCmd cmd = executionContext.getCommand();
+            socketConnection.disconnect();
+            cmd.setResponse(new NullResp());
         };
 
     }

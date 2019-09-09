@@ -9,23 +9,34 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
 @Service
 public class CommandStore implements ICommandStore {
 
-    private Map<String, ICommandQueue> commandQueueMap;
+    private ConcurrentMap<String, ICommandQueue> commandQueueMap;
 
     @Autowired
     private IServiceResolver serviceResolver;
 
 
     public CommandStore() {
-        commandQueueMap = new HashMap<>();
+        commandQueueMap = new ConcurrentHashMap<>();
     }
 
-    public <T extends ICommand> ICommandQueue getCommandQueue(Class<T> tClass) {
+    public <R, T extends ICommand<R>> ICommandQueue getCommandQueue(T cmd, Class<?> tClass) {
+
         String key = tClass.getName();
+
+        if (tClass.isAnnotationPresent(EnableCustomKeySelector.class)) {
+            ResolvableType keySelectorClass = ResolvableType.forClassWithGenerics(IQueueKeySelector.class, tClass);
+            IQueueKeySelector keySelector = serviceResolver.getService(keySelectorClass);
+            key = key + "#" + keySelector.getKey(cmd, tClass);
+        }
+
+
         if (!commandQueueMap.containsKey(key)) {
             ICommandQueue queue;
             if (tClass.isAnnotationPresent(QueuedCommand.class)) {
@@ -33,16 +44,17 @@ public class CommandStore implements ICommandStore {
             } else {
                 queue = new CommandQueue(false);
             }
-            commandQueueMap.put(key, queue);
+            commandQueueMap.putIfAbsent(key, queue);
         }
+
         return commandQueueMap.get(key);
     }
 
     @Override
     public <R, T extends ICommand<R>> CompletableFuture<R> execute(ICommandExecutionContext<T> context) {
 
-        ICommand cmd = context.getCommand();
-        ICommandQueue queue = getCommandQueue(cmd.getClass());
+        T cmd = context.getCommand();
+        ICommandQueue queue = getCommandQueue(cmd, cmd.getClass());
         Supplier<R> task = () -> {
             try {
                 executeInternal(context);
@@ -60,7 +72,7 @@ public class CommandStore implements ICommandStore {
         executePostHandlers(context);
     }
 
-    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context)  {
+    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context) {
         ResolvableType handlerResolver = ResolvableType.forClassWithGenerics(ICommandHandler.class, context.getCommand().getClass());
         List<ICommandHandler<T>> handlers = serviceResolver.getServices(handlerResolver);
         List<CommandFilter> filters = serviceResolver.getServices(CommandFilter.class);
@@ -75,7 +87,7 @@ public class CommandStore implements ICommandStore {
         }
     }
 
-    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context)  {
+    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context) {
         ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPreHandler.class, context.getCommand().getClass());
         List<ICommandPreHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
         for (ICommandPreHandler<T> handler : preHandlers) {
@@ -83,7 +95,7 @@ public class CommandStore implements ICommandStore {
         }
     }
 
-    private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context)  {
+    private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context) {
         ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPostHandler.class, context.getCommand().getClass());
         List<ICommandPostHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
         for (ICommandPostHandler<T> handler : preHandlers) {

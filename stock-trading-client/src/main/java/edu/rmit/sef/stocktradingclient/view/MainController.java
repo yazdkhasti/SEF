@@ -3,7 +3,9 @@ package edu.rmit.sef.stocktradingclient.view;
 
 import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
 import edu.rmit.sef.user.command.GetCurrentUserCmd;
+import edu.rmit.sef.user.command.LogoutCmd;
 import edu.rmit.sef.user.model.SystemUser;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,6 +13,7 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
@@ -18,10 +21,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.springframework.stereotype.Component;
+import sun.rmi.runtime.Log;
 
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 @Component
 public class MainController extends JavaFXController {
@@ -49,9 +50,11 @@ public class MainController extends JavaFXController {
         StyleHelper.addClass(leftPane, "left-pane");
         leftPane.setPrefWidth(200);
 
+
         Text welcomeLbl = new Text("Welcome");
         StyleHelper.h3(welcomeLbl);
         StyleHelper.addClass(welcomeLbl, "client-name");
+        StyleHelper.whiteText(welcomeLbl);
         leftPane.getChildren().add(welcomeLbl);
 
         Text lastSeenLbl = new Text("Last seen on");
@@ -60,20 +63,35 @@ public class MainController extends JavaFXController {
 
         Text lastSeenOn = new Text();
         StyleHelper.addClass(lastSeenOn, "last-seen");
+        StyleHelper.whiteText(lastSeenOn);
         leftPane.getChildren().add(lastSeenOn);
+
+        Button logoutBtn = new Button("Sign out");
+        logoutBtn.setPrefWidth(Double.MAX_VALUE);
+        logoutBtn.setOnAction(e -> {
+            getCommandService().execute(new LogoutCmd()).join();
+            getViewManager().show(ViewNames.LOGIN);
+        });
+
+        leftPane.getChildren().add(logoutBtn);
 
         Separator line = new Separator();
         line.prefWidth(Double.MAX_VALUE);
         leftPane.getChildren().add(line);
 
-        Button stocks = new Button();
-        VBox btnBox = new VBox(10);
-        Group btnGroup = new Group(btnBox);
-        btnBox.getChildren().add(StyleHelper.icon("bar-chart.png", 30));
-        btnBox.getChildren().add(new Label("Test"));
-        stocks.setGraphic(btnGroup);
-        StyleHelper.addClass(stocks, "link");
-        leftPane.getChildren().add(stocks);
+        VBox actionGroupBox = new VBox(10);
+        actionGroupBox.setAlignment(Pos.TOP_CENTER);
+        leftPane.getChildren().add(actionGroupBox);
+
+        Button stocksBtn = getNavActionButton("Stocks", "stocks.png");
+        actionGroupBox.getChildren().add(stocksBtn);
+
+        Button portfolioBtn = getNavActionButton("Portfolio", "portfolio.png");
+        actionGroupBox.getChildren().add(portfolioBtn);
+
+        Button ordersBtn = getNavActionButton("Orders", "orders.png");
+        actionGroupBox.getChildren().add(ordersBtn);
+
 
         getCommandService().execute(new GetCurrentUserCmd()).thenAccept(getCurrentUserResp -> {
             SystemUser currentUser = getCurrentUserResp.getUser();
@@ -83,5 +101,27 @@ public class MainController extends JavaFXController {
 
 
         return leftPane;
+    }
+
+    private Button getNavActionButton(String text, String iconPath) {
+        Button nabBtn = new Button();
+        VBox btnBox = new VBox(10);
+
+        Group btnGroup = new Group(btnBox);
+
+        ImageView icon = StyleHelper.icon(iconPath, 40);
+        StyleHelper.whiteText(icon);
+        btnBox.getChildren().add(icon);
+
+        Label btnLbl = new Label(text);
+        StyleHelper.whiteText(btnLbl);
+        StyleHelper.bold(btnLbl);
+        btnBox.getChildren().add(btnLbl);
+
+        nabBtn.setGraphic(btnGroup);
+        nabBtn.setPrefWidth(Double.MAX_VALUE);
+        StyleHelper.addClass(nabBtn, "link");
+
+        return nabBtn;
     }
 }

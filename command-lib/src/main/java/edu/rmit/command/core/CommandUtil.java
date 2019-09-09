@@ -15,6 +15,10 @@ public class CommandUtil {
         throw new CommandExecutionException(msg);
     }
 
+    public static void throwRecordNotFoundException() {
+        throw new CommandExecutionException("The requested record does not exist.");
+    }
+
     public static void throwCommandExecutionException() {
         throwCommandExecutionException("An exception occured.");
     }
