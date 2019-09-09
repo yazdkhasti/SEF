@@ -20,7 +20,7 @@ public class CommandUtil {
     }
 
     public static void throwCommandExecutionException() {
-        throwCommandExecutionException("An exception occured.");
+        throwCommandExecutionException("An exception occurred.");
     }
 
     public static void throwCommandExecutionException(Exception ex) {
@@ -29,6 +29,9 @@ public class CommandUtil {
 
     public static void throwAppExecutionException(Exception ex) {
         throw new AppExecutionException(ex);
+    }
+    public static void throwAppExecutionException(String message) {
+        throw new AppExecutionException(message);
     }
 
     public static void throwSecurityException() {

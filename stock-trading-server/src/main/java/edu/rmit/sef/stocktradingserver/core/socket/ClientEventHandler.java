@@ -1,5 +1,6 @@
 package edu.rmit.sef.stocktradingserver.core.socket;
 
+import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.sef.core.command.PublishEventCmd;
@@ -29,10 +30,15 @@ public class ClientEventHandler {
         return executionContext -> {
 
             PublishEventCmd cmd = executionContext.getCommand();
+
+            if (cmd.getIsGlobal() && cmd.getUserId() == null) {
+                CommandUtil.throwCommandExecutionException("Global events must have user id.");
+            }
+
             SocketMessage message = SocketMessage.newMessage(cmd.getEventArg());
             message.setName(cmd.getEventName());
 
-            if (cmd.isGlobal()) {
+            if (!cmd.getIsGlobal()) {
                 simpMessagingTemplate.convertAndSend(globalEventQueue, message);
             } else {
                 simpMessagingTemplate.convertAndSendToUser(executionContext.getUserId(), userEventQueue, message);

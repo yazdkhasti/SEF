@@ -79,7 +79,16 @@ public class StockService {
 
             if (stock != null) {
 
-                modelMapper.map(cmd, stock);
+                if (cmd.getName() != null) {
+                    stock.setName(cmd.getName());
+                }
+                if (cmd.getSymbol() != null) {
+                    stock.setSymbol(cmd.getSymbol());
+                }
+
+                if (cmd.getPrice() != null) {
+                    stock.setPrice(cmd.getPrice());
+                }
 
                 checkForDuplicate(stock);
 

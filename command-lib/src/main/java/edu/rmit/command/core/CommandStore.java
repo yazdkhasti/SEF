@@ -28,12 +28,17 @@ public class CommandStore implements ICommandStore {
 
     public <R, T extends ICommand<R>> ICommandQueue getCommandQueue(T cmd, Class<?> tClass) {
 
-        String key = tClass.getName();
+        String key;
 
         if (tClass.isAnnotationPresent(EnableCustomKeySelector.class)) {
+
             ResolvableType keySelectorClass = ResolvableType.forClassWithGenerics(IQueueKeySelector.class, tClass);
             IQueueKeySelector keySelector = serviceResolver.getService(keySelectorClass);
-            key = key + "#" + keySelector.getKey(cmd, tClass);
+            key = keySelector.getKey(cmd, tClass);
+
+        } else {
+
+            key = tClass.getName();
         }
 
 

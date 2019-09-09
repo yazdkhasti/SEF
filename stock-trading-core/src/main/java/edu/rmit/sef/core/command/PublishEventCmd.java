@@ -7,14 +7,17 @@ public class PublishEventCmd extends Command<NullResp> {
 
     private Object eventArg;
     private String eventName;
-    private boolean isGlobal;
+    private String userId;
+    private Boolean isGlobal;
 
-    public PublishEventCmd() { }
+    public PublishEventCmd() {
+    }
 
-    public PublishEventCmd(Object eventArg, String eventName,boolean isGlobal) {
+    public PublishEventCmd(Object eventArg, String eventName, String userId, boolean isGlobal) {
         setEventArg(eventArg);
         setEventName(eventName);
-        setGlobal(isGlobal);
+        setUserId(userId);
+        setIsGlobal(isGlobal);
     }
 
 
@@ -34,11 +37,20 @@ public class PublishEventCmd extends Command<NullResp> {
         this.eventName = eventName;
     }
 
-    public boolean isGlobal() {
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Boolean getIsGlobal() {
         return isGlobal;
     }
 
-    public void setGlobal(boolean global) {
-        isGlobal = global;
+    public void setIsGlobal(Boolean isGlobal) {
+        this.isGlobal = isGlobal;
     }
 }
