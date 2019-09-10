@@ -5,6 +5,8 @@ import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
 import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.core.security.Authority;
+import edu.rmit.sef.order.model.Order;
+import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMalformedException;
@@ -187,6 +189,7 @@ public class UserAuthService implements UserDetailsService {
             modelMapper.map(cmd, user);
 
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setLastSeenOn(new Date());
 
             user.getAuthorities().add(Authority.USER);
 
