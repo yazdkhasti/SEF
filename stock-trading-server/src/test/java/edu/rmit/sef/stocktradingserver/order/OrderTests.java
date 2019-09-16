@@ -3,14 +3,12 @@ package edu.rmit.sef.stocktradingserver.order;
 
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.sef.order.command.CreateOrderCmd;
-import edu.rmit.sef.order.command.GetAllOrderCmd;
+import edu.rmit.sef.order.command.GetAllOrdersCmd;
 import edu.rmit.sef.order.command.RemoveOrderCmd;
 import edu.rmit.sef.order.model.OrderType;
-import edu.rmit.sef.stock.command.AddStockCmd;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,7 @@ public class OrderTests extends BaseTest {
         ICommandService commandService = getCommandService();
 
         CreateOrderCmd cmd = new CreateOrderCmd();
-        cmd.setOrderNumber("1");
+       // cmd.setOrderNumber("1");
         cmd.setOrderType(OrderType.Buy);
         cmd.setPrice(100);
         cmd.setQuantity(10);
@@ -50,7 +48,7 @@ public class OrderTests extends BaseTest {
         ICommandService commandService = getCommandService();
 
         CreateOrderCmd cmd = new CreateOrderCmd();
-        cmd.setOrderNumber("2");
+        //cmd.setOrderNumber("2");
         cmd.setOrderType(OrderType.Buy);
         cmd.setPrice(100);
         cmd.setQuantity(10);
@@ -93,7 +91,7 @@ public class OrderTests extends BaseTest {
 
         ICommandService commandService = getCommandService();
         CreateOrderCmd cmd = new CreateOrderCmd();
-        cmd.setOrderNumber("5");
+        //cmd.setOrderNumber("5");
         cmd.setOrderType(OrderType.Sell);
         cmd.setPrice(100);
         cmd.setQuantity(10);
@@ -101,16 +99,16 @@ public class OrderTests extends BaseTest {
 
 
         commandService.execute(cmd).join();
-        System.out.println("create Order: " + cmd.getOrderNumber());
+       // System.out.println("create Order: " + cmd.getOrderNumber());
 
-        GetAllOrderCmd cmd2 = new GetAllOrderCmd();
+        GetAllOrdersCmd cmd2 = new GetAllOrdersCmd();
 
-        commandService.execute(cmd2).join();
-        System.out.println("Test: " + cmd2.getOrderList().get(0).getOrderNumber());
-
-        for (int i = 0; i < cmd2.getOrderList().size(); i++) {
-            System.out.println("OrderNumber: " + cmd2.getOrderList().get(i).getOrderNumber());
-        }
+//        commandService.execute(cmd2).join();
+//        System.out.println("Test: " + cmd2.getOrderList().get(0).getTransactionId());
+//
+//        for (int i = 0; i < cmd2.getOrderList().size(); i++) {
+//            System.out.println("OrderNumber: " + cmd2.getOrderList().get(i).getTransactionId());
+//        }
 
         Assert.assertNotNull(cmd2.getResponse());
 

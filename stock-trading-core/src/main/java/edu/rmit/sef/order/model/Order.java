@@ -5,12 +5,12 @@ import edu.rmit.sef.core.model.Entity;
 
 public class Order extends Entity {
 
-    private String orderNumber;
-    private long price;
+    private String transactionId;
+    private double price;
     private int quantity;
     private OrderType orderType;
     private OrderState orderState;
-
+    private String stockSymbol;
 
     private int remainedQuantity;
 
@@ -22,21 +22,20 @@ public class Order extends Entity {
         this.stockSymbol = stockSymbol;
     }
 
-    private String stockSymbol;
-
-    public String getOrderNumber() {
-        return orderNumber;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
+    public void setTransactionId(String transactionId) {
+        this.transactionId =
+                transactionId;
     }
 
-    public long getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -97,4 +96,10 @@ public class Order extends Entity {
             orderState = OrderState.Canceled;
         }
     }
+
+    public static String getTransactionId(Long orderNumber) {
+       return  String.format("TR%1$12s", orderNumber).replace(' ', '0');
+    }
+
+
 }
