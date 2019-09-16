@@ -35,7 +35,7 @@ public class BaseWebSocketController extends BaseApiController {
     @MessageMapping(value = "${edu.rmit.sef.stocktrading.server.serverQueue}")
     public void execute(@Payload SocketMessage msg, @AuthenticationPrincipal Principal principal) throws IOException {
         ICommand o = SocketMessage.toObject(msg);
-        Object resp = getCommandService().execute((ICommand) o).join();
+        Object resp = getCommandService().execute(o).join();
         simpMessagingTemplate.convertAndSendToUser(principal.getName(), clientQueue, msg.getResponse(resp));
     }
 

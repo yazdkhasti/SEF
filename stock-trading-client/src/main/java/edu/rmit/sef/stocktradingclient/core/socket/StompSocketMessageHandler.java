@@ -9,12 +9,12 @@ import java.lang.reflect.Type;
 public interface StompSocketMessageHandler<T> extends StompFrameHandler {
 
     @Override
-    public default Type getPayloadType(StompHeaders stompHeaders) {
+    default Type getPayloadType(StompHeaders stompHeaders) {
         return SocketMessage.class;
     }
 
     @Override
-    public default void handleFrame(StompHeaders stompHeaders, Object o) {
+    default void handleFrame(StompHeaders stompHeaders, Object o) {
         SocketMessage target = (SocketMessage) o;
         handle(target);
     }

@@ -4,5 +4,5 @@ import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface UserRepository extends MongoRepository<SystemUser, String> {
-    public SystemUser findUserByUsername(String username);
+    SystemUser findUserByUsername(String username);
 }

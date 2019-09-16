@@ -5,6 +5,7 @@ import edu.rmit.sef.core.command.PublishEventCmd;
 import edu.rmit.sef.order.command.WithdrawOrderCmd;
 import edu.rmit.sef.order.model.*;
 import edu.rmit.sef.stock.command.UpdateStockCmd;
+import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class OrderMatchHandler {
     @Bean
     public IQueueKeySelector<MatchOrderCmd> matchOrderQueueKeySelector() {
 
-        return (command, tClass) -> tClass.getName() + command.getOrder().getStockSymbol() + command.getOrder().getOrderType();
+        return (command, tClass) -> tClass.getName() + command.getOrder().getStockId() + command.getOrder().getOrderType();
 
     }
 
@@ -44,7 +45,7 @@ public class OrderMatchHandler {
         return (command, tClass) -> {
 
             Order order = db.findById(command.getOrderId(), Order.class);
-            return tClass.getName() + order.getStockSymbol() + order.getOrderType();
+            return tClass.getName() + order.getStockId() + order.getOrderType();
 
         };
 
@@ -90,14 +91,15 @@ public class OrderMatchHandler {
             db.save(masterTransaction);
 
 
-            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.getTransactionId(), buyerOrder.getStockSymbol(), cmd.getTradeQuantity(), cmd.getExecutedOn());
-            commandService.execute(new PublishEventCmd(buyerEvent, OrderEventNames.ORDER_MATCHED, buyerOrder.getCreatedBy(), false));
+            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.getTransactionId(), buyerOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            commandService.execute(new PublishEventCmd(buyerEvent, OrderEventNames.ORDER_MATCHED, buyerOrder.getCreatedBy()));
 
-            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.getTransactionId(), sellOrder.getStockSymbol(), cmd.getTradeQuantity(), cmd.getExecutedOn());
-            commandService.execute(new PublishEventCmd(sellerEvent, OrderEventNames.ORDER_MATCHED, sellOrder.getCreatedBy(), false));
+            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.getTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            commandService.execute(new PublishEventCmd(sellerEvent, OrderEventNames.ORDER_MATCHED, sellOrder.getCreatedBy()));
 
-            UpdateStockCmd updateStockCmd = new UpdateStockCmd();
+            UpdateStockPriceCmd updateStockCmd = new UpdateStockPriceCmd();
             updateStockCmd.setPrice(cmd.getExecutedPrice());
+            updateStockCmd.setStockId(cmd.getStockId());
             commandService.execute(updateStockCmd);
 
             cmd.setResponse(new NullResp());
@@ -122,7 +124,7 @@ public class OrderMatchHandler {
 
                 do {
 
-                    Order buyOrder = getOrderFromQueue(OrderType.Buy, order.getPrice(), MatchType.Exact);
+                    Order buyOrder = getOrderFromQueue(order.getStockId(), OrderType.Buy, order.getPrice(), MatchType.Exact);
 
                     if (buyOrder != null) {
 
@@ -130,7 +132,7 @@ public class OrderMatchHandler {
 
                     } else {
 
-                        buyOrder = getOrderFromQueue(OrderType.Buy, order.getPrice(), MatchType.GreatestPrice);
+                        buyOrder = getOrderFromQueue(order.getStockId(), OrderType.Buy, order.getPrice(), MatchType.GreatestPrice);
 
                         if (buyOrder == null) {
 
@@ -147,7 +149,7 @@ public class OrderMatchHandler {
 
                 do {
 
-                    Order sellOrder = getOrderFromQueue(OrderType.Sell, order.getPrice(), MatchType.Exact);
+                    Order sellOrder = getOrderFromQueue(order.getStockId(), OrderType.Sell, order.getPrice(), MatchType.Exact);
 
                     if (sellOrder != null) {
 
@@ -155,7 +157,7 @@ public class OrderMatchHandler {
 
                     } else {
 
-                        sellOrder = getOrderFromQueue(OrderType.Sell, order.getPrice(), MatchType.LowestPrice);
+                        sellOrder = getOrderFromQueue(order.getStockId(), OrderType.Sell, order.getPrice(), MatchType.LowestPrice);
 
                         if (sellOrder == null) {
 
@@ -181,6 +183,10 @@ public class OrderMatchHandler {
 
         int tradeQuantity = Math.min(buyOrder.getRemainedQuantity(), sellOrder.getRemainedQuantity());
 
+        if (buyOrder.getStockId() != sellOrder.getStockId()) {
+            CommandUtil.throwAppExecutionException("Buy order stock and sell order stock must be same.");
+        }
+
         buyOrder.trade(tradeQuantity);
 
         sellOrder.trade(tradeQuantity);
@@ -189,10 +195,10 @@ public class OrderMatchHandler {
 
         db.save(sellOrder);
 
-        return new OrderMatchedCmd(buyOrder, sellOrder, tradeQuantity, price);
+        return new OrderMatchedCmd(buyOrder, sellOrder, buyOrder.getStockId(), tradeQuantity, price);
     }
 
-    private Order getOrderFromQueue(OrderType orderType, double price, MatchType matchType) {
+    private Order getOrderFromQueue(String stockId, OrderType orderType, double price, MatchType matchType) {
 
         Criteria criteria;
 
@@ -205,6 +211,8 @@ public class OrderMatchHandler {
         }
 
         criteria = criteria.andOperator(Criteria.where("orderType").is(orderType));
+
+        criteria = criteria.andOperator(Criteria.where("stockId").is(stockId));
 
         criteria = criteria.andOperator(Criteria.where("orderState").in(OrderState.PendingTrade, OrderState.PartiallyTraded));
 

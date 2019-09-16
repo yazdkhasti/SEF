@@ -10,16 +10,16 @@ public class Order extends Entity {
     private int quantity;
     private OrderType orderType;
     private OrderState orderState;
-    private String stockSymbol;
+    private String stockId;
 
     private int remainedQuantity;
 
-    public String getStockSymbol() {
-        return stockSymbol;
+    public String getStockId() {
+        return stockId;
     }
 
-    public void setStockSymbol(String stockSymbol) {
-        this.stockSymbol = stockSymbol;
+    public void setStockId(String stockId) {
+        this.stockId = stockId;
     }
 
     public String getTransactionId() {

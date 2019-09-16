@@ -33,7 +33,7 @@ public class OrderTests extends BaseTest {
         cmd.setOrderType(OrderType.Buy);
         cmd.setPrice(100);
         cmd.setQuantity(10);
-        cmd.setStockSymbol("1");
+        cmd.setStockId("1");
 
 
         commandService.execute(cmd).join();
@@ -52,7 +52,7 @@ public class OrderTests extends BaseTest {
         cmd.setOrderType(OrderType.Buy);
         cmd.setPrice(100);
         cmd.setQuantity(10);
-        cmd.setStockSymbol("2");
+        cmd.setStockId("2");
 
 
         commandService.execute(cmd).join();
@@ -95,7 +95,7 @@ public class OrderTests extends BaseTest {
         cmd.setOrderType(OrderType.Sell);
         cmd.setPrice(100);
         cmd.setQuantity(10);
-        cmd.setStockSymbol("5");
+        cmd.setStockId("5");
 
 
         commandService.execute(cmd).join();

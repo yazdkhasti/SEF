@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.concurrent.CompletionException;
@@ -70,7 +69,7 @@ public class StockTests extends BaseTest {
 
         UpdateStockCmd updateStockCmd = new UpdateStockCmd();
 
-        updateStockCmd.setId(createEntityResp.getId());
+        updateStockCmd.setStockId(createEntityResp.getId());
         updateStockCmd.setName("Google2");
 
         NullResp updateCmdResp = commandService.execute(updateStockCmd).join();
@@ -103,7 +102,7 @@ public class StockTests extends BaseTest {
 
         UpdateStockCmd updateStockCmd = new UpdateStockCmd();
 
-        updateStockCmd.setId(createEntityResp.getId());
+        updateStockCmd.setStockId(createEntityResp.getId());
         updateStockCmd.setSymbol("goog");
 
 

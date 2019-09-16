@@ -1,16 +1,17 @@
 package edu.rmit.sef.order.command;
 
 import edu.rmit.command.core.Command;
+import edu.rmit.command.core.QueuedCommand;
 import edu.rmit.sef.core.command.CreateEntityResp;
-import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 
+@QueuedCommand
 public class CreateOrderCmd extends Command<CreateEntityResp> {
 
     private long price;
     private int quantity;
     private OrderType orderType;
-    private String stockSymbol;
+    private String stockId;
 
     public long getPrice() {
         return price;
@@ -36,12 +37,12 @@ public class CreateOrderCmd extends Command<CreateEntityResp> {
         this.orderType = orderType;
     }
 
-    public String getStockSymbol() {
-        return stockSymbol;
+    public String getStockId() {
+        return stockId;
     }
 
-    public void setStockSymbol(String stockSymbol) {
-        this.stockSymbol = stockSymbol;
+    public void setStockId(String stockId) {
+        this.stockId = stockId;
     }
 
 

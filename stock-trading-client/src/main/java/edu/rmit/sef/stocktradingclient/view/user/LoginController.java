@@ -37,26 +37,26 @@ public class LoginController extends JavaFXController {
 
         Text title = new Text("Welcome");
         StyleHelper.h2(title);
-        root.setConstraints(title, 0, 0);
+        GridPane.setConstraints(title, 0, 0);
 
 
         Label usernameLbl = new Label();
         usernameLbl.setText("Username");
-        root.setConstraints(usernameLbl, 0, 1);
+        GridPane.setConstraints(usernameLbl, 0, 1);
 
 
         TextField usernameTxt = new TextField();
         usernameTxt.setPromptText("username");
-        root.setConstraints(usernameTxt, 1, 1);
+        GridPane.setConstraints(usernameTxt, 1, 1);
 
         Label passwordLbl = new Label();
         passwordLbl.setText("Password");
-        root.setConstraints(passwordLbl, 0, 2);
+        GridPane.setConstraints(passwordLbl, 0, 2);
 
 
         PasswordField passwordTxt = new PasswordField();
         passwordTxt.setPromptText("password");
-        root.setConstraints(passwordTxt, 1, 2);
+        GridPane.setConstraints(passwordTxt, 1, 2);
 
 
         Button loginBtn = new Button();
@@ -72,13 +72,13 @@ public class LoginController extends JavaFXController {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(registerBtn, loginBtn);
-        root.setConstraints(buttonBox, 1, 3);
+        GridPane.setConstraints(buttonBox, 1, 3);
 
         Text errorLabel = new Text();
         errorLabel.setText("Invalid credentials");
         errorLabel.setVisible(false);
         StyleHelper.error(errorLabel);
-        root.setConstraints(errorLabel, 1, 4);
+        GridPane.setConstraints(errorLabel, 1, 4);
 
 
         root.getChildren().addAll(title, usernameLbl, usernameTxt, passwordLbl, passwordTxt, buttonBox, errorLabel);

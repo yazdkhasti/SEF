@@ -1,32 +1,21 @@
 package edu.rmit.sef.stocktradingserver.stock.service;
 
-import edu.rmit.command.core.CommandUtil;
-import edu.rmit.command.core.ICommandHandler;
-import edu.rmit.command.core.NullResp;
+import edu.rmit.command.core.*;
 import edu.rmit.sef.core.command.CreateEntityResp;
+import edu.rmit.sef.core.command.PublishEventCmd;
 import edu.rmit.sef.core.model.Entity;
-import edu.rmit.sef.stock.command.AddStockCmd;
-import edu.rmit.sef.stock.command.FindStockByIdCmd;
-import edu.rmit.sef.stock.command.FindStockByIdResp;
-import edu.rmit.sef.stock.command.UpdateStockCmd;
+import edu.rmit.sef.stock.command.*;
 import edu.rmit.sef.stock.model.Stock;
+import edu.rmit.sef.stock.model.StockState;
+import edu.rmit.sef.stocktradingserver.stock.command.GetStockPriceCmd;
+import edu.rmit.sef.stocktradingserver.stock.command.GetStockPriceResp;
 import edu.rmit.sef.stocktradingserver.stock.repo.StockRepository;
-import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
-import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
-import edu.rmit.sef.user.command.AuthenticateCmd;
-import edu.rmit.sef.user.command.AuthenticateResp;
-import edu.rmit.sef.user.model.SystemUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-import java.util.Date;
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 @Configuration
 public class StockService {
@@ -55,7 +44,6 @@ public class StockService {
 
             cmd.setResponse(new CreateEntityResp(stock.getId()));
 
-
         };
 
     }
@@ -67,38 +55,67 @@ public class StockService {
 
             UpdateStockCmd cmd = executionContext.getCommand();
 
-            FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
-            findStockByIdCmd.setId(cmd.getId());
+            Stock stock = findStockById(cmd.getStockId());
 
-            FindStockByIdResp findStockByIdResp = executionContext.getCommandService()
-                    .execute(findStockByIdCmd)
-                    .join();
+            if (stock.getStockState() != StockState.PendingApprove) {
 
-
-            Stock stock = findStockByIdResp.getStock();
-
-            if (stock != null) {
-
-                if (cmd.getName() != null) {
-                    stock.setName(cmd.getName());
-                }
-                if (cmd.getSymbol() != null) {
-                    stock.setSymbol(cmd.getSymbol());
-                }
-
-                if (cmd.getPrice() != null) {
-                    stock.setPrice(cmd.getPrice());
-                }
+                stock.setName(cmd.getName());
+                stock.setSymbol(cmd.getSymbol());
+                stock.setPrice(cmd.getPrice());
 
                 checkForDuplicate(stock);
 
                 stockRepository.save(stock);
 
                 cmd.setResponse(new NullResp());
+
             } else {
-                CommandUtil.throwRecordNotFoundException();
+
+                CommandUtil.throwAppExecutionException("Stock details can only be updated for stock that are not on trade.");
+
             }
 
+        };
+
+    }
+
+    @Bean
+    public ICommandHandler<UpdateStockPriceCmd> updateStockPriceHandler() {
+
+        return executionContext -> {
+
+            UpdateStockPriceCmd cmd = executionContext.getCommand();
+            ICommandService commandService = executionContext.getCommandService();
+
+            Stock stock = findStockById(cmd.getStockId());
+
+            stock.setPrice(cmd.getPrice());
+            stockRepository.save(stock);
+
+
+            StockPriceUpdatedEvent stockPriceUpdatedEvent = new StockPriceUpdatedEvent();
+            stockPriceUpdatedEvent.setStock(stock);
+            commandService.execute(new PublishEventCmd(stockPriceUpdatedEvent, StockEventNames.STOCK_PRICE_UPDATED));
+
+            cmd.setResponse(new NullResp());
+
+
+        };
+    }
+
+    @Bean
+    public ICommandHandler<GetStockPriceCmd> getStockPriceHandler() {
+
+        return executionContext -> {
+
+            GetStockPriceCmd cmd = executionContext.getCommand();
+
+            Stock stock = findStockById(cmd.getStockId());
+
+            GetStockPriceResp resp = new GetStockPriceResp();
+            resp.setPrice(stock.getPrice());
+
+            cmd.setResponse(resp);
         };
 
     }
@@ -109,21 +126,27 @@ public class StockService {
         return executionContext -> {
 
             FindStockByIdCmd cmd = executionContext.getCommand();
+            Stock stock = findStockById(cmd.getId());
 
-            Optional<Stock> stockRecord = stockRepository.findById(cmd.getId());
+            FindStockByIdResp findStockByIdResp = new FindStockByIdResp();
+            findStockByIdResp.setStock(stock);
 
-            if (stockRecord.isPresent()) {
-
-                FindStockByIdResp resp = new FindStockByIdResp();
-                resp.setStock(stockRecord.get());
-
-                cmd.setResponse(resp);
-
-            }
-
-
+            cmd.setResponse(findStockByIdResp);
         };
 
+    }
+
+    private Stock findStockById(String stockId) {
+
+        Optional<Stock> stockRecord = stockRepository.findById(stockId);
+        Stock stock = null;
+
+        if (stockRecord.isPresent()) {
+            stock = stockRecord.get();
+        } else {
+            CommandUtil.throwRecordNotFoundException();
+        }
+        return stock;
     }
 
 

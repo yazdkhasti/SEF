@@ -13,11 +13,17 @@ public class PublishEventCmd extends Command<NullResp> {
     public PublishEventCmd() {
     }
 
-    public PublishEventCmd(Object eventArg, String eventName, String userId, boolean isGlobal) {
+    public PublishEventCmd(Object eventArg, String eventName) {
+        setEventArg(eventArg);
+        setEventName(eventName);
+        setIsGlobal(true);
+    }
+
+    public PublishEventCmd(Object eventArg, String eventName, String userId) {
         setEventArg(eventArg);
         setEventName(eventName);
         setUserId(userId);
-        setIsGlobal(isGlobal);
+        setIsGlobal(false);
     }
 
 

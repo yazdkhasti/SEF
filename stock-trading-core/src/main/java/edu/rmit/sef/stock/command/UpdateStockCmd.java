@@ -5,17 +5,17 @@ import edu.rmit.command.core.NullResp;
 
 public class UpdateStockCmd extends Command<NullResp> {
 
-    private String id;
+    private String stockId;
     private String symbol;
     private String name;
     private Double price;
 
-    public String getId() {
-        return id;
+    public String getStockId() {
+        return stockId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setStockId(String stockId) {
+        this.stockId = stockId;
     }
 
     public String getSymbol() {

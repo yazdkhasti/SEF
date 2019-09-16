@@ -12,10 +12,12 @@ public class OrderMatchedCmd extends Command<NullResp> {
     private int tradeQuantity;
     private double executedPrice;
     private Date executedOn;
+    private String stockId;
 
-    public OrderMatchedCmd(Order buyOrder, Order sellOrder, int tradeQuantity, double executedPrice) {
+    public OrderMatchedCmd(Order buyOrder, Order sellOrder, String stockId, int tradeQuantity, double executedPrice) {
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
+        this.stockId = stockId;
         this.tradeQuantity = tradeQuantity;
         this.executedPrice = executedPrice;
     }
@@ -63,4 +65,13 @@ public class OrderMatchedCmd extends Command<NullResp> {
     public void setExecutedPrice(double executedPrice) {
         this.executedPrice = executedPrice;
     }
+
+    public String getStockId() {
+        return stockId;
+    }
+
+    public void setStockId(String stockId) {
+        this.stockId = stockId;
+    }
+
 }

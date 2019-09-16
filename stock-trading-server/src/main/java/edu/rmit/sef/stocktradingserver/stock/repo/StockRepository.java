@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface StockRepository extends MongoRepository<Stock, String> {
 
-    public Stock findStockBySymbol(String symbol);
+    Stock findStockBySymbol(String symbol);
 }

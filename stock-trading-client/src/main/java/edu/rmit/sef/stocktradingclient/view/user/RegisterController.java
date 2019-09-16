@@ -32,55 +32,55 @@ public class RegisterController extends JavaFXController {
 
         Text title = new Text("Registration");
         StyleHelper.h2(title);
-        root.setConstraints(title, 0, 0);
+        GridPane.setConstraints(title, 0, 0);
 
 
         Label usernameLbl = new Label();
         usernameLbl.setText("Username");
-        root.setConstraints(usernameLbl, 0, 1);
+        GridPane.setConstraints(usernameLbl, 0, 1);
 
 
         TextField usernameTxt = new TextField();
         usernameTxt.setPromptText("username");
-        root.setConstraints(usernameTxt, 1, 1);
+        GridPane.setConstraints(usernameTxt, 1, 1);
 
         Label passwordLbl = new Label();
         passwordLbl.setText("Password");
-        root.setConstraints(passwordLbl, 0, 2);
+        GridPane.setConstraints(passwordLbl, 0, 2);
 
 
         PasswordField passwordTxt = new PasswordField();
         passwordTxt.setPromptText("password");
-        root.setConstraints(passwordTxt, 1, 2);
+        GridPane.setConstraints(passwordTxt, 1, 2);
 
 
         Label firstNameLbl = new Label();
         firstNameLbl.setText("First name");
-        root.setConstraints(firstNameLbl, 0, 3);
+        GridPane.setConstraints(firstNameLbl, 0, 3);
 
 
         TextField firstNameTxt = new TextField();
         firstNameTxt.setPromptText("First name");
-        root.setConstraints(firstNameTxt, 1, 3);
+        GridPane.setConstraints(firstNameTxt, 1, 3);
 
         Label lastNameLbl = new Label();
         lastNameLbl.setText("Last name");
-        root.setConstraints(lastNameLbl, 0, 4);
+        GridPane.setConstraints(lastNameLbl, 0, 4);
 
 
         TextField lastNameTxt = new TextField();
         lastNameTxt.setPromptText("Last name");
-        root.setConstraints(lastNameTxt, 1, 4);
+        GridPane.setConstraints(lastNameTxt, 1, 4);
 
 
         Label companyNameLbl = new Label();
         companyNameLbl.setText("Company");
-        root.setConstraints(companyNameLbl, 0, 5);
+        GridPane.setConstraints(companyNameLbl, 0, 5);
 
 
         TextField companyNameTxt = new TextField();
         companyNameTxt.setPromptText("Company");
-        root.setConstraints(companyNameTxt, 1, 5);
+        GridPane.setConstraints(companyNameTxt, 1, 5);
 
 
         Button loginBtn = new Button();
@@ -96,13 +96,13 @@ public class RegisterController extends JavaFXController {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(registerBtn, loginBtn);
-        root.setConstraints(buttonBox, 1, 6);
+        GridPane.setConstraints(buttonBox, 1, 6);
 
         Text errorLabel = new Text();
         errorLabel.setText("User Already exists");
         errorLabel.setVisible(false);
         StyleHelper.error(errorLabel);
-        root.setConstraints(errorLabel, 1, 7);
+        GridPane.setConstraints(errorLabel, 1, 7);
 
 
         root.getChildren().addAll(title, usernameLbl, usernameTxt, passwordLbl,
