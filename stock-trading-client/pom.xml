@@ -42,6 +42,7 @@
 			<groupId>edu.rmit.sef</groupId>
 			<artifactId>stock-trading-core</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.jfxtras/jmetro -->
@@ -56,6 +57,12 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>8.40.15</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.rmit.sef</groupId>
+			<artifactId>stock-trading-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>
