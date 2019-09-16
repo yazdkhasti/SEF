@@ -1,6 +1,6 @@
 package edu.rmit.sef.stock.command;
 
-import edu.rmit.command.core.Command;
+        import edu.rmit.command.core.Command;
 
 public class FindStockByIdCmd extends Command<FindStockByIdResp> {
 
