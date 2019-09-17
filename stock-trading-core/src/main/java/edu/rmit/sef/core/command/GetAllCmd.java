@@ -1,10 +1,23 @@
 package edu.rmit.sef.core.command;
 
 import edu.rmit.command.core.Command;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public class GetAllCmd<T> extends Command<GetAllResp<T>> {
+
+    private String filter;
+    private int pageNumber;
+    private int pageSize;
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
 
     public int getPageNumber() {
         return pageNumber;
@@ -14,17 +27,16 @@ public class GetAllCmd<T> extends Command<GetAllResp<T>> {
         this.pageNumber = pageNumber;
     }
 
-    public int getPageCount() {
-        return pageCount;
+    public int getPageSize() {
+        return pageSize;
     }
 
-    public void setPageCount(int pageCount) {
-        this.pageCount = pageCount;
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
 
-    private int pageNumber;
-    private int pageCount;
-
-
+    public Pageable getPageable() {
+        return PageRequest.of(pageNumber, pageSize);
+    }
 }

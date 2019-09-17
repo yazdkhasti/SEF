@@ -8,6 +8,7 @@ import edu.rmit.sef.stock.command.UpdateStockCmd;
 import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
+import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +62,15 @@ public class OrderMatchHandler {
             order.withdraw();
 
             db.save(order);
+
+            UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
+            updateUserStockPortfolioCmd.setQuantityChanged(-1 * order.getRemainedQuantity());
+            updateUserStockPortfolioCmd.setStockId(order.getStockId());
+            updateUserStockPortfolioCmd.setUserId(order.getCreatedBy());
+            executionContext.getCommandService().execute(updateUserStockPortfolioCmd).join();
+
+            cmd.setResponse(new NullResp());
+
         };
     }
 

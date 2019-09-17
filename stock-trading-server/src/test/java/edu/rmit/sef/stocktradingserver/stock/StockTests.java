@@ -4,11 +4,9 @@ package edu.rmit.sef.stocktradingserver.stock;
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.sef.core.command.CreateEntityResp;
-import edu.rmit.sef.stock.command.AddStockCmd;
-import edu.rmit.sef.stock.command.FindStockByIdCmd;
-import edu.rmit.sef.stock.command.FindStockByIdResp;
-import edu.rmit.sef.stock.command.UpdateStockCmd;
+import edu.rmit.sef.stock.command.*;
 import edu.rmit.sef.stock.model.Stock;
+import edu.rmit.sef.stock.model.StockState;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,7 +69,8 @@ public class StockTests extends BaseTest {
 
         updateStockCmd.setStockId(createEntityResp.getId());
         updateStockCmd.setName("Google2");
-
+        updateStockCmd.setName("goog2");
+        updateStockCmd.setPrice(170.0);
         NullResp updateCmdResp = commandService.execute(updateStockCmd).join();
 
 
@@ -83,8 +82,8 @@ public class StockTests extends BaseTest {
         Stock updatedStock = findStockByIdResp.getStock();
 
         Assert.assertEquals(updatedStock.getName(), updateStockCmd.getName());
-        //Assert.assertEquals(updatedStock.getPrice(), updateStockCmd.getPrice());
-
+        Assert.assertEquals(updatedStock.getSymbol(), updateStockCmd.getSymbol());
+        Assert.assertEquals(updatedStock.getPrice(), updateStockCmd.getPrice(), 0.0);
 
     }
 
@@ -106,9 +105,36 @@ public class StockTests extends BaseTest {
         updateStockCmd.setSymbol("goog");
 
 
-
         NullResp updateCmdResp = commandService.execute(updateStockCmd).join();
 
+
+    }
+
+
+    @Test
+    public void approveTest() {
+
+        ICommandService commandService = getCommandService();
+
+        AddStockCmd addStockCmd = new AddStockCmd();
+        addStockCmd.setSymbol("goog");
+        addStockCmd.setName("Google");
+        addStockCmd.setPrice(100);
+
+        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+
+        ApproveStockCmd approveStockCmd = new ApproveStockCmd();
+        approveStockCmd.setStockId(createEntityResp.getId());
+        commandService.execute(approveStockCmd).join();
+
+        FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
+        findStockByIdCmd.setId(createEntityResp.getId());
+
+        FindStockByIdResp findStockByIdResp = commandService.execute(findStockByIdCmd).join();
+
+        Stock stock = findStockByIdResp.getStock();
+
+        Assert.assertEquals(stock.getStockState(), StockState.OnTrade);
 
 
     }
