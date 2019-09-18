@@ -8,16 +8,16 @@ import edu.rmit.sef.order.model.OrderType;
 @QueuedCommand
 public class CreateOrderCmd extends Command<CreateEntityResp> {
 
-    private long price;
+    private double price;
     private int quantity;
     private OrderType orderType;
     private String stockId;
 
-    public long getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
