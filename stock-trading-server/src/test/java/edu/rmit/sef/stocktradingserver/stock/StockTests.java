@@ -24,15 +24,9 @@ public class StockTests extends BaseTest {
     public void addStockTest() {
         ICommandService commandService = getCommandService();
 
-        AddStockCmd cmd = new AddStockCmd();
-        cmd.setSymbol("goog");
-        cmd.setName("Google");
-        cmd.setPrice(100);
+        String id = addStock();
 
-        commandService.execute(cmd).join();
-
-
-        Assert.assertNotNull(cmd.getResponse().getId());
+        Assert.assertNotNull(id);
 
     }
 
@@ -47,7 +41,13 @@ public class StockTests extends BaseTest {
 
         commandService.execute(cmd).join();
 
-        commandService.execute(cmd).join();
+        AddStockCmd cmd2 = new AddStockCmd();
+        cmd.setSymbol("goog");
+        cmd.setName("Google2");
+        cmd.setPrice(200);
+
+
+        commandService.execute(cmd2).join();
 
 
     }
@@ -105,7 +105,7 @@ public class StockTests extends BaseTest {
         updateStockCmd.setSymbol("goog");
 
 
-        NullResp updateCmdResp = commandService.execute(updateStockCmd).join();
+        commandService.execute(updateStockCmd).join();
 
 
     }
@@ -138,4 +138,6 @@ public class StockTests extends BaseTest {
 
 
     }
+
+
 }
