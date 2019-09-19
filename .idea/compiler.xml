@@ -6,9 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="stock-trading-server" />
         <module name="command-lib" />
         <module name="stock-trading-core" />
+        <module name="stock-trading-server" />
         <module name="stock-trading-client" />
       </profile>
     </annotationProcessing>

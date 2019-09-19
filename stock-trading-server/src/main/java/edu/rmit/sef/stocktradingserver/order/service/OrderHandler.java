@@ -153,10 +153,10 @@ public class OrderHandler {
 
             Sort sort = new Sort(Sort.Direction.ASC,"orderNumber");
             Pageable pageable = PageRequest.of(cmd.getPage(),cmd.getSize(),sort);
-            orderPage = orderRepository.findAllByUserID(pageable);
-            orderList = orderPage.getContent();
+            //orderList = orderRepository.findAllByUserID(pageable);
+            //orderList = orderPage.ge)tContent(;
 
-            cmd.setResponse(new OrderListResp(orderList));
+           // cmd.setResponse(new OrderListResp(orderList));
         };
 
     }

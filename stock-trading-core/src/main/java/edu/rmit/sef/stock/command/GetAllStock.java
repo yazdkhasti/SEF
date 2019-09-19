@@ -1,9 +1,9 @@
 package edu.rmit.sef.stock.command;
 
 import edu.rmit.command.core.Command;
-import com.sun.tools.javac.util.List;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.stock.model.Stock;
+import java.util.List;
 
 public class GetAllStock extends Command<CreateEntityResp> {
 
