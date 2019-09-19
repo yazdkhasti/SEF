@@ -1,16 +1,23 @@
 package edu.rmit.sef.stocktradingclient.view.order;
 
 
+import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
+import edu.rmit.sef.stocktradingclient.view.ViewNames;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -69,6 +76,11 @@ public class OrderList extends JavaFXController {
                 stockIDText.setText(orderList.get(i).getStockId());
                 root.getChildren().addAll(stockIDText);
             }
+        });
+
+        createBtn.setOnAction(event -> {
+            getViewManager().showAppScreen(ViewNames.Order.CreateOrder);
+
         });
 
 

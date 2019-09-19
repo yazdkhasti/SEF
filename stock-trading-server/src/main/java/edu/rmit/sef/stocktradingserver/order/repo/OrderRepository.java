@@ -11,5 +11,5 @@ import java.util.List;
 
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-
+     Page<Order> findAll(Pageable pageable);
 }

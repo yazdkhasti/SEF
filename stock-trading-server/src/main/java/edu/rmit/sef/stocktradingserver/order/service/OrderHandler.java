@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 
 import java.util.List;
@@ -150,14 +147,16 @@ public class OrderHandler {
 
             List<Order> orderList;
             Page<Order> orderPage;
+            Order orderExample = new Order();
+            orderExample.setId(executionContext.getUserId());
+            Example<Order> example = Example.of(orderExample);
 
             Sort sort = new Sort(Sort.Direction.ASC,"orderNumber");
             Pageable pageable = PageRequest.of(cmd.getPage(),cmd.getSize(),sort);
+            orderPage = orderRepository.findAll(example,pageable);
+            orderList = orderPage.getContent();
 
-            //orderList = orderRepository.(pageable);
-            //            //orderList = orderPage.ge)tContent(;
-
-           // cmd.setResponse(new OrderListResp(orderList));
+            cmd.setResponse(new OrderListResp(orderList));
         };
 
     }

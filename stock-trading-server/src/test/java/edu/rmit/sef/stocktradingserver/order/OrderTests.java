@@ -60,25 +60,7 @@ public class OrderTests extends BaseTest {
         commandService.execute(cmd).join();
     }
 
-    @Test
-    public void removeOrderTest() {
-        ICommandService commandService = getCommandService();
 
-//        Assert.assertNotNull(orderRepository.findOrderByOrderNumber("1"));
-//        RemoveOrderCmd cmd = new RemoveOrderCmd();
-//        cmd.setOrderNumber("1");
-//
-//        commandService.execute(cmd).join();
-//
-//        Assert.assertNull(orderRepository.findOrderByOrderNumber("1")); Assert.assertNotNull(orderRepository.findOrderByOrderNumber("1"));
-//        RemoveOrderCmd cmd = new RemoveOrderCmd();
-//        cmd.setOrderNumber("1");
-//
-//        commandService.execute(cmd).join();
-//
-//        Assert.assertNull(orderRepository.findOrderByOrderNumber("1"));
-
-    }
 
     @Test(expected = CompletionException.class)
     public void preventNullOrderTest() {
