@@ -1,7 +1,7 @@
 package edu.rmit.sef.stock.command;
 
-import edu.rmit.sef.stock.model.Stock;
 
+import edu.rmit.sef.stock.model.Stock;
 public class StockPriceUpdatedEvent {
     private Stock stock;
 
