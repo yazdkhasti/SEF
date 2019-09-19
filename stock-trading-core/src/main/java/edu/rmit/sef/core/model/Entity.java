@@ -73,4 +73,6 @@ public abstract class Entity {
         return null;
     }
 
+    public void validate() { }
+
 }

@@ -34,6 +34,13 @@ public class CommandUtil {
         throw new AppExecutionException(message);
     }
 
+    public static void must(Validator rule, String message) {
+        boolean isValid = false;
+        isValid = rule.call();
+        if (!isValid) {
+            throwAppExecutionException(message);
+        }
+    }
     public static void throwSecurityException() {
         throw new SecurityException("Unauthorized.");
     }

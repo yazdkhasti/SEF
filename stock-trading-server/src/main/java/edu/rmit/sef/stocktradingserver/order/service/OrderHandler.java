@@ -7,7 +7,9 @@ import edu.rmit.command.core.InitCmd;
 import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.core.command.CreateEntityResp;
+import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrdersCmd;
+import edu.rmit.sef.order.command.OrderListResp;
 import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioCmd;
@@ -23,8 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -87,7 +94,7 @@ public class OrderHandler {
             double maxValue = stock.getPrice() + orderPriceThreshold;
             double minValue = stock.getPrice() - orderPriceThreshold;
 
-            if (orderPrice > maxValue || orderPrice < minValue) {
+            if (orderPrice < maxValue || orderPrice > minValue) {
                 CommandUtil.throwAppExecutionException("Buy/Sell orders must be within +/-10 cents of the last trade.");
             }
 
@@ -135,11 +142,21 @@ public class OrderHandler {
 
 
     @Bean
-    public ICommandHandler<GetAllOrdersCmd> getAllOrderCmdICommandHandler() {
+    public ICommandHandler<GetAllOrderCmd> getAllOrderCmdICommandHandler() {
 
         return executionContext -> {
 
+            GetAllOrderCmd cmd = executionContext.getCommand();
 
+            List<Order> orderList;
+            Page<Order> orderPage;
+
+            Sort sort = new Sort(Sort.Direction.ASC,"orderNumber");
+            Pageable pageable = PageRequest.of(cmd.getPage(),cmd.getSize(),sort);
+            orderPage = orderRepository.findAllByUserID(pageable);
+            orderList = orderPage.getContent();
+
+            cmd.setResponse(new OrderListResp(orderList));
         };
 
     }

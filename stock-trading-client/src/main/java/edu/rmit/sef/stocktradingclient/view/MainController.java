@@ -92,6 +92,11 @@ public class MainController extends JavaFXController {
         Button ordersBtn = getNavActionButton("Orders", "orders.png");
         actionGroupBox.getChildren().add(ordersBtn);
 
+        ordersBtn.setOnAction(event -> {
+            Parent orderNode = getViewManager().loadSubScene(ViewNames.Order.OrderList, this.getPath());
+            StyleHelper.addClass(orderNode, "center-pane");
+            root.setCenter(orderNode);
+        });
 
         getCommandService().execute(new GetCurrentUserCmd()).thenAccept(getCurrentUserResp -> {
             SystemUser currentUser = getCurrentUserResp.getUser();
