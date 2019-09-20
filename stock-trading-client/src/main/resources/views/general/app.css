@@ -6,6 +6,10 @@ GridPane{
 -fx-padding:25;
 }
 
+.v-box{
+-fx-spacing:10;
+}
+
 *{
 -fx-font-size:12.5;
 }
@@ -36,6 +40,10 @@ GridPane{
 -fx-fill: #fff;
 }
 
+ .anchor-pane{
+ -fx-padding:25;
+ }
+
 .main-pane .left-pane{
  -fx-background-color:rgb(43,87,154);
  -fx-padding:25;
@@ -48,10 +56,12 @@ GridPane{
   -fx-fill: #fff;
   }
 
-.main-pane .center-pane{
+.center-pane{
  -fx-background-color:rgb(243,243,243);
  -fx-padding:25;
  }
+
+
 
 .left-pane .client-name{
 

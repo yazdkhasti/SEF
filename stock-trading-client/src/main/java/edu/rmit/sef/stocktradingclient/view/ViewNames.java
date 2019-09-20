@@ -11,6 +11,7 @@ public class ViewNames {
     //Stock
     public class Stock {
         public static final String StockList = "/stock/stock-list";
+        public static final String Stock = "/stock/stock";
     }
 
     public class Order {

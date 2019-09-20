@@ -3,6 +3,7 @@ package edu.rmit.sef.stocktradingclient.view;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.IServiceResolver;
 import edu.rmit.sef.stocktradingclient.core.event.EventBus;
+import edu.rmit.sef.stocktradingclient.core.javafx.TempData;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -77,12 +78,12 @@ public class ViewManager {
         Stage appStage = getAppStage();
         appStage.centerOnScreen();
         appStage.initStyle(StageStyle.UNDECORATED);
-        return show(path, appStage);
+        return show(path, appStage, null);
     }
 
     public JavaFXController showAppScreen(String path) {
         getAppStage().hide();
-        JavaFXController controller = openView(path);
+        JavaFXController controller = openView(path, null);
         Stage mainStage = getStage(path);
         mainStage.setOnCloseRequest((e) -> {
             close();
@@ -104,34 +105,35 @@ public class ViewManager {
     }
 
 
-    public JavaFXController openView(String path, StageStyle stageStyle, Modality modality, Stage parentStage) {
+    public JavaFXController openView(String path, StageStyle stageStyle, Modality modality, Stage parentStage, TempData tempData) {
         Stage stage = new Stage();
         stage.initOwner(parentStage);
         stage.initStyle(stageStyle);
         stage.initModality(modality);
+        stage.centerOnScreen();
         registerStage(path, stage);
-        return show(path, stage);
+        return show(path, stage, tempData);
     }
 
-    public JavaFXController openView(String path, StageStyle stageStyle, Modality modality) {
+    public JavaFXController openView(String path, StageStyle stageStyle, Modality modality, TempData tempData) {
         Stage appStage = getMainStage();
-        return openView(path, stageStyle, modality, appStage);
+        return openView(path, stageStyle, modality, appStage, tempData);
     }
 
-    public JavaFXController openModal(String path) {
-        return openView(path, StageStyle.UTILITY, Modality.APPLICATION_MODAL);
+    public JavaFXController openModal(String path, TempData tempData) {
+        return openView(path, StageStyle.UTILITY, Modality.APPLICATION_MODAL, tempData);
     }
 
-    public JavaFXController openView(String path) {
-        return openView(path, StageStyle.DECORATED, Modality.NONE);
+    public JavaFXController openView(String path, TempData tempData) {
+        return openView(path, StageStyle.DECORATED, Modality.NONE, tempData);
     }
 
     public JavaFXController show(String path) {
         Stage appStage = getMainStage();
-        return show(path, appStage);
+        return show(path, appStage, null);
     }
 
-    private JavaFXController show(String path, Stage stage) {
+    private JavaFXController show(String path, Stage stage, TempData tempData) {
 
         FXMLLoader loader = getLoader(path);
         Parent root = loadFXML(loader);
@@ -141,6 +143,7 @@ public class ViewManager {
 
         JavaFXController javaFXController = loader.getController();
         javaFXController.setPath(path);
+        javaFXController.setTempData(tempData);
 
 
         Platform.runLater(() -> {

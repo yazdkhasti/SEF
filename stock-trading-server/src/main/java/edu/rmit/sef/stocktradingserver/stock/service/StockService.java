@@ -16,12 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.startsWith;
 
 @Configuration
 public class StockService {
@@ -29,6 +33,9 @@ public class StockService {
 
     @Autowired
     private StockRepository stockRepository;
+
+    @Autowired
+    private MongoTemplate db;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -67,15 +74,17 @@ public class StockService {
 
             Stock stock = findStockById(cmd.getStockId());
 
+            if (stock.getSymbol().compareTo(cmd.getSymbol()) != 0) {
+                checkForDuplicateStockSymbol(cmd.getSymbol());
+            }
+
+            modelMapper.map(cmd, stock);
+
             CommandUtil.must(() -> stock.getStockState() == StockState.PendingApprove,
                     "Stock details can only be updated for stock that are not on trade.");
 
             stock.validate();
 
-
-            if (stock.getSymbol() != cmd.getSymbol()) {
-                checkForDuplicateStockSymbol(cmd.getSymbol());
-            }
 
             stockRepository.save(stock);
 
@@ -100,7 +109,7 @@ public class StockService {
 
             Stock stock = findStockById(cmd.getStockId());
 
-            CommandUtil.must(() -> stock.getStockState() != StockState.OnTrade,
+            CommandUtil.must(() -> stock.validForUpdate(),
                     "Stock state must be OnTrade.");
 
             stock.setPrice(cmd.getPrice());
@@ -199,11 +208,20 @@ public class StockService {
             exampleStock.setSymbol(cmd.getFilter());
             exampleStock.setName(cmd.getFilter());
 
-            Example<Stock> example = Example.of(exampleStock);
 
-            Page<Stock> result = stockRepository.findAll(example, cmd.getPageable());
+            Criteria criteria = Criteria.where("name").regex(cmd.getFilter(), "i");
+            criteria.orOperator(Criteria.where("symbol").regex(cmd.getFilter(), "i"));
 
-            GetAllResp<Stock> resp = new GetAllResp<>(result.getContent(), result.getTotalElements());
+            Query query = Query.query(criteria);
+
+            query.with(cmd.toPageable());
+
+
+            List<Stock> result = db.find(query, Stock.class);
+
+            GetAllStocksResp resp = new GetAllStocksResp();
+            resp.setResult(result);
+            resp.setTotalCount(0);
 
             cmd.setResponse(resp);
         };

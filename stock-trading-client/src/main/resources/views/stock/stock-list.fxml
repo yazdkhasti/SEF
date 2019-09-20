@@ -7,12 +7,12 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.text.Text?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="edu.rmit.sef.stocktradingclient.view.stock.StockList"
-            prefHeight="400.0" prefWidth="600.0"
-fx:id="root">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.rmit.sef.stocktradingclient.view.stock.StockList"
+      alignment="TOP_LEFT"
+      spacing="10"
+      fx:id="root">
 
-    <Text>Test</Text>
 
-</AnchorPane>
+</VBox>

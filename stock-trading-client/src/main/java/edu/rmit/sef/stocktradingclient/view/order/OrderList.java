@@ -1,23 +1,17 @@
 package edu.rmit.sef.stocktradingclient.view.order;
 
 
-import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.model.Order;
-import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
+import edu.rmit.sef.stocktradingclient.core.javafx.StyleHelper;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
 import edu.rmit.sef.stocktradingclient.view.ViewNames;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -36,21 +30,21 @@ public class OrderList extends JavaFXController {
 
         Text title = new Text("Order List");
         StyleHelper.h2(title);
-        root.setConstraints(title, 0, 0);
+        GridPane.setConstraints(title, 0, 0);
 
 
         Label stockIDLabel = new Label();
         stockIDLabel.setText("StockID");
-        root.setConstraints(stockIDLabel, 0, 1);
+        GridPane.setConstraints(stockIDLabel, 0, 1);
 
         Label priceLabel = new Label();
         priceLabel.setText("Price");
-        root.setConstraints(priceLabel, 1, 1);
+        GridPane.setConstraints(priceLabel, 1, 1);
 
 
         Label quantityLabel = new Label();
         quantityLabel.setText("Quantity");
-        root.setConstraints(quantityLabel, 2, 1);
+        GridPane.setConstraints(quantityLabel, 2, 1);
 
 
         Button createBtn = new Button();
@@ -59,7 +53,7 @@ public class OrderList extends JavaFXController {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
         buttonBox.getChildren().addAll(createBtn);
-        root.setConstraints(buttonBox, 1, 4);
+        GridPane.setConstraints(buttonBox, 1, 4);
 
 
         GetAllOrderCmd cmd = new GetAllOrderCmd();
@@ -71,7 +65,7 @@ public class OrderList extends JavaFXController {
 
             for (int i = 0; i < size; i++) {
                 Label stockIDText = new Label();
-                root.setConstraints(stockIDText, 0, 1+i);
+                GridPane.setConstraints(stockIDText, 0, 1+i);
                 List<Order> orderList = OrderListResp.getOrderList();
                 stockIDText.setText(orderList.get(i).getStockId());
                 root.getChildren().addAll(stockIDText);

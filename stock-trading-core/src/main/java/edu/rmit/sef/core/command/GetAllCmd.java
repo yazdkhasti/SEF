@@ -5,11 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 
-public class GetAllCmd<T> extends Command<GetAllResp<T>> {
+public class GetAllCmd<T> extends Command<T> {
 
-    private String filter;
+    private String filter = "";
     private int pageNumber;
-    private int pageSize;
+    private int pageSize = 50;
 
     public String getFilter() {
         return filter;
@@ -36,7 +36,7 @@ public class GetAllCmd<T> extends Command<GetAllResp<T>> {
     }
 
 
-    public Pageable getPageable() {
+    public Pageable toPageable() {
         return PageRequest.of(pageNumber, pageSize);
     }
 }

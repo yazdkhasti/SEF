@@ -1,16 +1,12 @@
 package edu.rmit.sef.stocktradingclient.view.user;
 
-import ch.qos.logback.core.joran.action.ActionUtil;
-import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
+import edu.rmit.command.core.ICommandService;
+import edu.rmit.sef.stocktradingclient.core.javafx.StyleHelper;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
 import edu.rmit.sef.stocktradingclient.view.ViewNames;
 import edu.rmit.sef.user.command.AuthenticateCmd;
-import edu.rmit.sef.user.model.SystemUser;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
+import edu.rmit.sef.user.command.GetCurrentUserCmd;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -18,7 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -86,18 +81,21 @@ public class LoginController extends JavaFXController {
         root.setAlignment(Pos.CENTER);
 
 
-
         loginBtn.setOnAction(event -> {
             loginBtn.setDisable(true);
             AuthenticateCmd authenticateCmd = new AuthenticateCmd();
             authenticateCmd.setUsername(usernameTxt.getText());
             authenticateCmd.setPassword(passwordTxt.getText());
 
-            getCommandService().execute(authenticateCmd).whenComplete((authenticateResp, ex) -> {
+            ICommandService commandService = getCommandService();
+
+            commandService.execute(authenticateCmd).whenComplete((authenticateResp, ex) -> {
                 if (ex != null) {
                     errorLabel.setVisible(true);
                 } else {
-                    getViewManager().show(ViewNames.MAIN);
+                    commandService.execute(new GetCurrentUserCmd()).thenAccept(getCurrentUserResp -> {
+                        getViewManager().show(ViewNames.MAIN);
+                    });
                 }
                 loginBtn.setDisable(false);
             });

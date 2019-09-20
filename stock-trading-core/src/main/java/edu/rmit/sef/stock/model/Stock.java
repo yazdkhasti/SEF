@@ -44,15 +44,27 @@ public class Stock extends Entity {
     }
 
     public void approve() {
-        CommandUtil.must(() -> this.stockState == StockState.PendingApprove, "The stock is not in a valid state.");
+        CommandUtil.must(() -> validForApprove(), "The stock is not in a valid state.");
         this.stockState = StockState.OnTrade;
     }
 
     public void disable() {
-        CommandUtil.must(() -> this.stockState == StockState.OnTrade
-                ||  this.stockState == StockState.PendingApprove, "The stock is not in a valid state.");
+        CommandUtil.must(() -> validForDisable(), "The stock is not in a valid state.");
 
         this.stockState = StockState.Disabled;
+    }
+
+    public boolean validForDisable() {
+        return this.stockState == StockState.OnTrade
+                || this.stockState == StockState.PendingApprove;
+    }
+
+    public boolean validForUpdate() {
+        return this.stockState == StockState.PendingApprove;
+    }
+
+    public boolean validForApprove() {
+        return this.stockState == StockState.PendingApprove;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package edu.rmit.sef.core.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import edu.rmit.command.core.CommandUtil;
 
 import java.util.UUID;
@@ -52,6 +53,7 @@ public class SocketMessage {
         SocketMessage msg = new SocketMessage();
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             String serialisedObject = mapper.writeValueAsString(o);
             msg.setSerialisedObject(serialisedObject);
             msg.setType(o.getClass());
@@ -67,6 +69,7 @@ public class SocketMessage {
         SocketMessage msg = new SocketMessage();
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             String serialisedObject = mapper.writeValueAsString(o);
             msg.setSerialisedObject(serialisedObject);
             msg.setType(o.getClass());
@@ -81,6 +84,7 @@ public class SocketMessage {
         T object = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             object = (T) mapper.readValue(msg.getSerialisedObject(), msg.getType());
 
         } catch (Exception ex) {

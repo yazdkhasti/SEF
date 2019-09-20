@@ -1,15 +1,20 @@
 package edu.rmit.sef.stocktradingclient.core.user;
 
 import edu.rmit.command.core.ICommandHandler;
+import edu.rmit.command.core.ICommandPostHandler;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.sef.stocktradingclient.core.socket.SocketConnection;
 import edu.rmit.sef.user.command.*;
+import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -23,6 +28,9 @@ public class UserService {
 
     @Autowired
     private SocketConnection socketConnection;
+
+    @Autowired
+    private PermissionManager permissionManager;
 
 
     private RestTemplate restTemplate;
@@ -64,11 +72,12 @@ public class UserService {
 
 
     @Bean
-    public ICommandHandler<GetCurrentUserCmd> getCurrentUserCmdHandler() {
+    public ICommandPostHandler<GetCurrentUserCmd> getCurrentUserCmdHandler() {
 
         return executionContext -> {
-            GetCurrentUserCmd cmd = executionContext.getCommand();
-            socketConnection.executeCommand(cmd);
+            GetCurrentUserResp resp = executionContext.getCommand().getResponse();
+            SystemUser principal = resp.getUser();
+            permissionManager.setCurrentUser(principal);
         };
 
     }

@@ -1,27 +1,22 @@
 package edu.rmit.sef.stocktradingclient.view;
 
 
-import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
-import edu.rmit.sef.user.command.GetCurrentUserCmd;
+import edu.rmit.sef.stocktradingclient.core.javafx.StyleHelper;
 import edu.rmit.sef.user.command.LogoutCmd;
 import edu.rmit.sef.user.model.SystemUser;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.controlsfx.glyphfont.FontAwesome;
 import org.springframework.stereotype.Component;
-import sun.rmi.runtime.Log;
 
 
 @Component
@@ -98,11 +93,9 @@ public class MainController extends JavaFXController {
             root.setCenter(orderNode);
         });
 
-        getCommandService().execute(new GetCurrentUserCmd()).thenAccept(getCurrentUserResp -> {
-            SystemUser currentUser = getCurrentUserResp.getUser();
-            welcomeLbl.setText(welcomeLbl.getText() + " " + currentUser.getFirstName() + " !");
-            lastSeenOn.setText(currentUser.getPreviousLastSeenOn().toString());
-        });
+        SystemUser currentUser = getPermissionManager().getCurrentUser();
+        welcomeLbl.setText(welcomeLbl.getText() + " " + currentUser.getFirstName() + " !");
+        lastSeenOn.setText(currentUser.getPreviousLastSeenOn().toString());
 
 
         return leftPane;

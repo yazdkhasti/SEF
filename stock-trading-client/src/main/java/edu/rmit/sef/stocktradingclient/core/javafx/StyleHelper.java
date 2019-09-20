@@ -1,4 +1,4 @@
-package edu.rmit.sef.stocktradingclient.core.javafx.controls;
+package edu.rmit.sef.stocktradingclient.core.javafx;
 
 
 import javafx.scene.Node;
@@ -6,7 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import jfxtras.styles.jmetro8.JMetro;
 
 
@@ -22,6 +24,14 @@ public class StyleHelper {
 
         if (root instanceof GridPane) {
             root.getStyleClass().addAll("grid-pane");
+        }
+
+        if (root instanceof AnchorPane) {
+            root.getStyleClass().addAll("anchor-pane");
+        }
+
+        if (root instanceof VBox) {
+            root.getStyleClass().addAll("v-box");
         }
     }
 

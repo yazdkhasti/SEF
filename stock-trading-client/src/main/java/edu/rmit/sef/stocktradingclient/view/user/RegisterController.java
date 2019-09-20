@@ -1,11 +1,10 @@
 package edu.rmit.sef.stocktradingclient.view.user;
 
-import edu.rmit.sef.stocktradingclient.core.javafx.controls.StyleHelper;
+import edu.rmit.sef.stocktradingclient.core.javafx.StyleHelper;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
 import edu.rmit.sef.stocktradingclient.view.ViewNames;
 import edu.rmit.sef.user.command.AuthenticateCmd;
 import edu.rmit.sef.user.command.RegisterUserCmd;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

@@ -58,10 +58,17 @@
 			<artifactId>controlsfx</artifactId>
 			<version>8.40.15</version>
 		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>5.1.6.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
 		<dependency>
-			<groupId>edu.rmit.sef</groupId>
-			<artifactId>stock-trading-core</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>5.1.6.RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
 
