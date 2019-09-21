@@ -11,6 +11,7 @@ import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrdersCmd;
 import edu.rmit.sef.order.command.OrderListResp;
 import edu.rmit.sef.order.model.Order;
+import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioCmd;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioResp;
@@ -91,7 +92,7 @@ public class OrderHandler {
             double maxValue = stock.getPrice() + orderPriceThreshold;
             double minValue = stock.getPrice() - orderPriceThreshold;
 
-            if (orderPrice < maxValue || orderPrice > minValue) {
+            if (orderPrice < maxValue && orderPrice > minValue) {
                 CommandUtil.throwAppExecutionException("Buy/Sell orders must be within +/-10 cents of the last trade.");
             }
 
@@ -126,11 +127,11 @@ public class OrderHandler {
             Long orderNumber = lastOrderNumber.getAndDecrement();
             String transactionId = Order.getTransactionId(orderNumber);
             order.setTransactionId(transactionId);
-
+            order.setOrderState(OrderState.PendingTrade);
 
             orderRepository.insert(order);
 
-            cmd.setResponse(new CreateEntityResp(order.getId()));
+            cmd.setResponse(new CreateEntityResp(order.getStockId()));
 
 
         };
@@ -155,6 +156,7 @@ public class OrderHandler {
             Pageable pageable = PageRequest.of(cmd.getPage(),cmd.getSize(),sort);
             orderPage = orderRepository.findAll(example,pageable);
             orderList = orderPage.getContent();
+
 
             cmd.setResponse(new OrderListResp(orderList));
         };
