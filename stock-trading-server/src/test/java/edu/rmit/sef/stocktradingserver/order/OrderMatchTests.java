@@ -248,7 +248,7 @@ public class OrderMatchTests extends BaseTest {
 
         GetUserStockPortfolioCmd getUserStockPortfolioCmd = new GetUserStockPortfolioCmd();
         getUserStockPortfolioCmd.setStockId(stockId);
-        getUserStockPortfolioCmd.setUserId(firstUserId);
+        getUserStockPortfolioCmd.setUserId(secondUserId);
 
         GetUserStockPortfolioResp getUserStockPortfolioResp = commandService.execute(getUserStockPortfolioCmd).join();
 

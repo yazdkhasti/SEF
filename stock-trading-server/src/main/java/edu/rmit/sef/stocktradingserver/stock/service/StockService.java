@@ -201,11 +201,6 @@ public class StockService {
 
             GetAllStocksCmd cmd = executionContext.getCommand();
 
-            Stock exampleStock = new Stock();
-            exampleStock.setSymbol(cmd.getFilter());
-            exampleStock.setName(cmd.getFilter());
-
-
             Criteria criteria = Criteria.where("name").regex(cmd.getFilter(), "i");
             criteria.orOperator(Criteria.where("symbol").regex(cmd.getFilter(), "i"));
 
@@ -215,10 +210,11 @@ public class StockService {
 
 
             List<Stock> result = db.find(query, Stock.class);
+            long totalCount = db.count(query, Stock.class);
 
             GetAllStocksResp resp = new GetAllStocksResp();
             resp.setResult(result);
-            resp.setTotalCount(0);
+            resp.setTotalCount(totalCount);
 
             cmd.setResponse(resp);
         };
