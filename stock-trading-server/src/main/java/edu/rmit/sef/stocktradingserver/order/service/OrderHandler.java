@@ -8,6 +8,7 @@ import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.order.command.*;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.order.model.Order;
+import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioCmd;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioResp;
@@ -15,6 +16,7 @@ import edu.rmit.sef.portfolio.model.StockPortfolio;
 import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.model.Stock;
+import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import org.modelmapper.ModelMapper;
@@ -115,7 +117,7 @@ public class OrderHandler {
 
                 StockPortfolio stockPortfolio = getUserStockPortfolioResp.getStockPortfolio();
 
-                CommandUtil.must(() -> order.getQuantity() <= stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
+                CommandUtil.must(() -> order.getQuantity() > stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
 
                 UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
                 updateUserStockPortfolioCmd.setStockId(cmd.getStockId());
@@ -131,13 +133,21 @@ public class OrderHandler {
 
 
             Long orderNumber = lastOrderNumber.getAndDecrement();
-            String transactionId = Order.formatTransactionId(orderNumber);
+            String transactionId = Order.getTransactionId(orderNumber);
             order.setTransactionId(transactionId);
 
 
             orderRepository.insert(order);
 
+
+            MatchOrderCmd matchOrderCmd = new MatchOrderCmd();
+            matchOrderCmd.setOrderId(order.getId());
+            commandService.execute(matchOrderCmd).join();
+
             cmd.setResponse(new CreateEntityResp(order.getId()));
+
+
+
 
         };
 
