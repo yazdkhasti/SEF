@@ -1,8 +1,9 @@
 package edu.rmit.sef.user.command;
 
 import edu.rmit.command.core.Command;
+import edu.rmit.sef.core.command.CreateEntityResp;
 
-public class RegisterUserCmd extends Command<RegisterUserResp> {
+public class RegisterUserCmd extends Command<CreateEntityResp> {
     private String firstName;
     private String lastName;
     private String username;

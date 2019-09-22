@@ -2,18 +2,16 @@ package edu.rmit.sef.stocktradingserver.user;
 
 
 import edu.rmit.command.core.ICommandService;
+import edu.rmit.command.exception.CommandExecutionException;
+import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
-import edu.rmit.sef.user.command.AuthenticateCmd;
-import edu.rmit.sef.user.command.AuthenticateResp;
-import edu.rmit.sef.user.command.RegisterUserCmd;
-import edu.rmit.sef.user.command.RegisterUserResp;
+import edu.rmit.sef.user.command.*;
+import edu.rmit.sef.user.model.SystemUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.concurrent.CompletionException;
 
 
 @RunWith(SpringRunner.class)
@@ -28,28 +26,29 @@ public class UserServiceUnitTests extends BaseTest {
         RegisterUserCmd registerUserCmd = new RegisterUserCmd();
         registerUserCmd.setFirstName("payam");
         registerUserCmd.setLastName("yazdkhasti");
-        registerUserCmd.setUsername("kandoo");
+        registerUserCmd.setUsername("yazdkhasti");
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 
-        RegisterUserResp registerUserResp = commandService.execute(registerUserCmd).join();
+        CreateEntityResp registerUserResp = commandService.execute(registerUserCmd).join();
 
         Assert.assertNotNull(registerUserResp.getId());
 
 
-        AuthenticateCmd authenticateCmd = new AuthenticateCmd();
-        authenticateCmd.setUsername("kandoo");
-        authenticateCmd.setPassword("pwd");
+        ICommandService userCommandService = getCommandService(registerUserResp.getId());
 
 
-        AuthenticateResp authenticateResp = commandService.execute(authenticateCmd).join();
-        Assert.assertNotNull(authenticateCmd);
-        Assert.assertEquals(registerUserCmd.getFirstName(), authenticateResp.getFirstName());
-        Assert.assertEquals(registerUserCmd.getLastName(), authenticateResp.getLastName());
+        GetCurrentUserResp getCurrentUserResp = userCommandService.execute(new GetCurrentUserCmd()).join();
+        SystemUser currentUser = getCurrentUserResp.getUser();
+        Assert.assertNotNull(currentUser);
+        Assert.assertEquals(currentUser.getFirstName(), registerUserCmd.getFirstName());
+        Assert.assertEquals(currentUser.getLastName(), registerUserCmd.getLastName());
+        Assert.assertEquals(currentUser.getCompany(), registerUserCmd.getCompany());
+        Assert.assertEquals(currentUser.getUsername(), registerUserCmd.getLastName());
 
     }
 
-    @Test(expected = CompletionException.class)
+    @Test(expected = CommandExecutionException.class)
     public void preventDuplicateUserTest() {
 
         ICommandService commandService = getCommandService();
@@ -61,14 +60,31 @@ public class UserServiceUnitTests extends BaseTest {
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 
-        RegisterUserResp registerUserResp = commandService.execute(registerUserCmd).join();
+        CreateEntityResp registerUserResp = commandService.execute(registerUserCmd).join();
 
         Assert.assertNotNull(registerUserResp.getId());
 
 
-        RegisterUserResp registerDuplicateUserResp = commandService.execute(registerUserCmd).join();
+        commandService.execute(registerUserCmd).join();
 
     }
+
+    @Test(expected = CommandExecutionException.class)
+    public void usernameLengthTest() {
+
+        ICommandService commandService = getCommandService();
+
+        RegisterUserCmd registerUserCmd = new RegisterUserCmd();
+        registerUserCmd.setFirstName("payam");
+        registerUserCmd.setLastName("yazdkhasti");
+        registerUserCmd.setUsername("123456");
+        registerUserCmd.setCompany("rmit");
+        registerUserCmd.setPassword("pwd");
+
+        commandService.execute(registerUserCmd).join();
+
+    }
+
 
     @Test
     public void checkLastSeenOnIsUpdatedTest() {
@@ -82,7 +98,7 @@ public class UserServiceUnitTests extends BaseTest {
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 
-        RegisterUserResp registerUserResp = commandService.execute(registerUserCmd).join();
+        CreateEntityResp registerUserResp = commandService.execute(registerUserCmd).join();
 
         Assert.assertNotNull(registerUserResp.getId());
 

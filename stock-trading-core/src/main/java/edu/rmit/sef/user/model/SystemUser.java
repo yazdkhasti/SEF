@@ -1,8 +1,8 @@
 package edu.rmit.sef.user.model;
 
+import edu.rmit.command.core.CommandUtil;
 import edu.rmit.sef.core.model.Entity;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,6 +85,22 @@ public class SystemUser extends Entity {
 
     public void setPreviousLastSeenOn(Date secondLastSeenOn) {
         this.previousLastSeenOn = secondLastSeenOn;
+    }
+
+    public void validate() {
+        CommandUtil.must(() -> username != null && username.length() >= 8,
+                "Username cannot be less than 8 characters.");
+        CommandUtil.assertNotNull(lastName,
+                "lastName cannot be null.");
+        CommandUtil.assertNotNull(firstName,
+                "FirstName cannot be null.");
+
+        CommandUtil.assertNotNull(password,
+                "Password cannot be null.");
+
+        CommandUtil.assertNotNull(company,
+                "Company cannot be null.");
+
     }
 
 

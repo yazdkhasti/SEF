@@ -1,21 +1,17 @@
 package edu.rmit.sef.stocktradingclient.core.socket;
 
 
-import edu.rmit.command.core.*;
+import edu.rmit.command.core.CommandUtil;
+import edu.rmit.command.core.ICommandHandler;
+import edu.rmit.command.core.ICommandPostHandler;
+import edu.rmit.command.core.TestCmd;
 import edu.rmit.sef.stocktradingclient.core.command.ConnectToServerCmd;
 import edu.rmit.sef.stocktradingclient.core.command.ConnectToServerResp;
 import edu.rmit.sef.stocktradingclient.core.event.Topic;
 import edu.rmit.sef.user.command.AuthenticateCmd;
-import edu.rmit.sef.user.command.AuthenticateResp;
-import edu.rmit.sef.user.command.RegisterUserCmd;
-import edu.rmit.sef.user.command.RegisterUserResp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 

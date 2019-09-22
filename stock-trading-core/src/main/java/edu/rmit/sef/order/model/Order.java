@@ -25,7 +25,7 @@ public class Order extends Entity {
         this.stockId = stockId;
     }
 
-    public String formatTransactionId() {
+    public String getTransactionId() {
         return transactionId;
     }
 
@@ -83,9 +83,8 @@ public class Order extends Entity {
 
         CommandUtil.must(() -> validForTrade(), "Order is not in valid state for trade");
 
-        if (this.remainedQuantity < quantity) {
-            CommandUtil.throwAppExecutionException("Trade quantity cannot exceed remaining quantity.");
-        }
+        CommandUtil.must(() -> this.remainedQuantity < quantity, "Trade quantity cannot exceed remaining quantity.");
+
         if (this.remainedQuantity > quantity) {
             orderState = OrderState.PartiallyTraded;
         } else {
@@ -115,7 +114,7 @@ public class Order extends Entity {
         }
     }
 
-    public static String formatTransactionId(Long orderNumber) {
+    public static String formatTransactionId(long orderNumber) {
         return String.format("TR%1$12s", orderNumber).replace(' ', '0');
     }
 

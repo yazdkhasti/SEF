@@ -1,14 +1,12 @@
 package edu.rmit.command.core;
 
 
-import edu.rmit.command.exception.CommandExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -78,8 +76,6 @@ public class CommandStore implements ICommandStore {
             try {
                 taskCount.incrementAndGet();
                 executeInternal(context, options, queue);
-            } catch (Exception e) {
-                throw new CommandExecutionException(e);
             } finally {
                 taskCount.decrementAndGet();
             }

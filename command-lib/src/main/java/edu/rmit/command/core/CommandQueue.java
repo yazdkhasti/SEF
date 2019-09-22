@@ -3,8 +3,9 @@ package edu.rmit.command.core;
 
 import org.springframework.beans.factory.DisposableBean;
 
-
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 
@@ -23,7 +24,15 @@ public class CommandQueue implements DisposableBean, ICommandQueue {
 
     @Override
     public <R> CompletableFuture<R> post(Supplier<R> task) {
-        return CompletableFuture.supplyAsync(task, executor);
+        CommandFuture<R> commandFuture = new CommandFuture<>();
+        CompletableFuture.supplyAsync(task, executor).whenComplete((r, t) -> {
+            if (t != null) {
+                commandFuture.completeExceptionally(t);
+            } else {
+                commandFuture.complete(r);
+            }
+        });
+        return commandFuture;
     }
 
     @Override

@@ -4,6 +4,4 @@ import edu.rmit.command.core.Command;
 
 public class GetCurrentUserCmd extends Command<GetCurrentUserResp> {
 
-
-
 }

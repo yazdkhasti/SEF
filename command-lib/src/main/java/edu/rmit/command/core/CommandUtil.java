@@ -11,12 +11,16 @@ public class CommandUtil {
         }
     }
 
+    public static void assertNotNull(Object arg, String message) {
+        must(() -> arg != null, message);
+    }
+
     public static void throwCommandExecutionException(String msg) {
         throw new CommandExecutionException(msg);
     }
 
     public static void throwRecordNotFoundException() {
-        throw new CommandExecutionException("The requested record does not exist.");
+        throw new AppExecutionException("The requested record does not exist.");
     }
 
     public static void throwCommandExecutionException() {
@@ -30,6 +34,7 @@ public class CommandUtil {
     public static void throwAppExecutionException(Exception ex) {
         throw new AppExecutionException(ex);
     }
+
     public static void throwAppExecutionException(String message) {
         throw new AppExecutionException(message);
     }
@@ -38,9 +43,10 @@ public class CommandUtil {
         boolean isValid = false;
         isValid = rule.call();
         if (!isValid) {
-            throwAppExecutionException(message);
+            throwCommandExecutionException(message);
         }
     }
+
     public static void throwSecurityException() {
         throw new SecurityException("Unauthorized.");
     }

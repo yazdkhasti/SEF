@@ -83,30 +83,27 @@ public class SocketConnection {
         }
     }
 
-    private <T extends SocketMessage> CompletableFuture<T> sendMessage(SocketMessage message) {
-        CompletableFuture completableFuture = getCompletableFuture();
+    private SocketMessage sendMessage(SocketMessage message) {
+        CompletableFuture<SocketMessage> completableFuture = getCompletableFuture();
         messageHashMap.putIfAbsent(message.getMessageId(), completableFuture);
         stompSession.send(serverCommandQueue, message);
-        return completableFuture;
+        SocketMessage result = null;
+        try {
+            result = completableFuture.get(messageTimeout, TimeUnit.MILLISECONDS);
+        } catch (Exception ex) {
+            CommandUtil.throwAppExecutionException(ex);
+        }
+        return result;
     }
 
     public <T> CompletableFuture<T> getCompletableFuture() {
         CompletableFuture<T> result = new CompletableFuture<T>();
-        Executors.newCachedThreadPool().submit(() ->
-        {
-            try {
-                result.get(messageTimeout, TimeUnit.MILLISECONDS);
-            } catch (Exception ex) {
-                result.completeExceptionally(ex);
-                CommandUtil.throwCommandExecutionException(ex);
-            }
-        });
         return result;
     }
 
     public <R, T extends ICommand<R>> void executeCommand(ICommand<R> command) {
         SocketMessage msg = SocketMessage.newMessage(command);
-        SocketMessage respMessage = sendMessage(msg).join();
+        SocketMessage respMessage = sendMessage(msg);
         R commandResp = SocketMessage.toObject(respMessage);
         command.setResponse(commandResp);
     }

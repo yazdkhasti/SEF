@@ -59,8 +59,8 @@ public class OrderList extends JavaFXController {
         GetAllOrderCmd cmd = new GetAllOrderCmd();
         int size = 10;
         int page = 1;
-        cmd.setPage(page);
-        cmd.setSize(size);
+//        cmd.setPage(page);
+//        cmd.setSize(size);
         getCommandService().execute(cmd).thenAccept(OrderListResp -> {
 
             for (int i = 0; i < size; i++) {
