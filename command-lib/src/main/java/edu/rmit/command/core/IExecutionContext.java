@@ -19,4 +19,6 @@ public interface IExecutionContext {
     ICommandService getCommandService();
 
     ICommandService getCommandService(String userId);
+
+    ExecutionOptions getOptions();
 }

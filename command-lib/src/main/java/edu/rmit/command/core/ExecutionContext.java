@@ -17,8 +17,10 @@ public class ExecutionContext<T extends ICommand> implements ICommandExecutionCo
     private final UUID operationId;
     private T command;
     private ICommandServiceFactory commandServiceFactory;
+    private ExecutionOptions executionOptions;
 
-    public ExecutionContext(@NotNull T command, String userId, @NotNull IServiceResolver serviceResolver, ICommandServiceFactory commandServiceFactory, IExecutionContext parentContext) {
+    public ExecutionContext(@NotNull T command, String userId, @NotNull IServiceResolver serviceResolver, ICommandServiceFactory commandServiceFactory,
+                            ExecutionOptions executionOptions, IExecutionContext parentContext) {
 
         this.userId = userId;
         this.command = command;
@@ -27,6 +29,7 @@ public class ExecutionContext<T extends ICommand> implements ICommandExecutionCo
         this.commandServiceFactory = commandServiceFactory;
         this.startedOn = new Date();
         this.operationId = UUID.randomUUID();
+        this.executionOptions = executionOptions;
     }
 
     @Override
@@ -47,6 +50,11 @@ public class ExecutionContext<T extends ICommand> implements ICommandExecutionCo
     @Override
     public ICommandService getCommandService(String userId) {
         return commandServiceFactory.createService(userId, this);
+    }
+
+    @Override
+    public ExecutionOptions getOptions() {
+        return executionOptions;
     }
 
     @Override

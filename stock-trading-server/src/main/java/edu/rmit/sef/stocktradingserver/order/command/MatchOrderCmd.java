@@ -11,14 +11,13 @@ import edu.rmit.sef.order.model.Order;
 public class MatchOrderCmd extends Command<NullResp> {
 
 
-    private Order order;
+    private String orderId;
 
-
-    public Order getOrder() {
-        return order;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

@@ -31,7 +31,7 @@ public class PortfolioService {
 
             UpdateUserStockPortfolioCmd cmd = executionContext.getCommand();
 
-            CommandUtil.must(() -> cmd.getQuantityChanged() == 0, "Quantity changed cannot be zero.");
+            CommandUtil.must(() -> cmd.getQuantityChanged() != 0, "Quantity changed cannot be zero.");
 
             GetUserStockPortfolioCmd getUserStockPortfolioCmd = new GetUserStockPortfolioCmd();
             getUserStockPortfolioCmd.setStockId(cmd.getStockId());
@@ -46,7 +46,7 @@ public class PortfolioService {
             long newQuantity = stockPortfolio.getQuantity() + cmd.getQuantityChanged();
 
 
-            CommandUtil.must(() -> newQuantity < 0, "Stock quantity owned by a client cannot be less than zero.");
+            CommandUtil.must(() -> newQuantity >= 0, "Stock quantity owned by a client cannot be less than zero.");
 
             stockPortfolio.setQuantity(newQuantity);
 
@@ -81,6 +81,8 @@ public class PortfolioService {
                 stockPortfolio = new StockPortfolio();
                 stockPortfolio.setStockId(stock.getId());
                 stockPortfolio.setUserId(cmd.getUserId());
+                stockPortfolio.setQuantity(0);
+                db.insert(stockPortfolio);
             }
 
             cmd.setResponse(new GetUserStockPortfolioResp(stockPortfolio));

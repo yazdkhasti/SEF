@@ -5,5 +5,7 @@ import java.util.concurrent.CompletableFuture;
 public interface ICommandService {
     String getUserId();
 
+    <R, T extends ICommand<R>> CompletableFuture<R> execute(T command, ExecutionOptions options);
+
     <R, T extends ICommand<R>> CompletableFuture<R> execute(T command);
 }

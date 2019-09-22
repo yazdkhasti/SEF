@@ -9,7 +9,7 @@ public class TradeTransaction {
     private String sellerOrderId;
     private String buyerOrderLineTransactionId;
     private String sellerOrderLineTransactionId;
-    private int tradeQuantity;
+    private long tradeQuantity;
     private double executedPrice;
     private Date executedOn;
 
@@ -53,11 +53,11 @@ public class TradeTransaction {
         this.sellerOrderLineTransactionId = sellerOrderLineTransactionId;
     }
 
-    public int getTradeQuantity() {
+    public long getTradeQuantity() {
         return tradeQuantity;
     }
 
-    public void setTradeQuantity(int tradeQuantity) {
+    public void setTradeQuantity(long tradeQuantity) {
         this.tradeQuantity = tradeQuantity;
     }
 

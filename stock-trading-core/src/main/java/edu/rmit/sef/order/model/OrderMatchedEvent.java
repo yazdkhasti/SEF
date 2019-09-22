@@ -6,10 +6,10 @@ public class OrderMatchedEvent {
 
     private String orderNumber;
     private String stockSymbol;
-    private int tradeQuantity;
+    private long tradeQuantity;
     private Date executedOn;
 
-    public OrderMatchedEvent(String orderNumber, String stockSymbol, int tradeQuantity, Date executedOn) {
+    public OrderMatchedEvent(String orderNumber, String stockSymbol, long tradeQuantity, Date executedOn) {
         this.orderNumber = orderNumber;
         this.stockSymbol = stockSymbol;
         this.tradeQuantity = tradeQuantity;
@@ -35,11 +35,11 @@ public class OrderMatchedEvent {
         this.stockSymbol = stockSymbol;
     }
 
-    public int getTradeQuantity() {
+    public long getTradeQuantity() {
         return tradeQuantity;
     }
 
-    public void setTradeQuantity(int tradeQuantity) {
+    public void setTradeQuantity(long tradeQuantity) {
         this.tradeQuantity = tradeQuantity;
     }
 
