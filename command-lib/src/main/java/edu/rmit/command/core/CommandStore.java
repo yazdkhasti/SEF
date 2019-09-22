@@ -11,12 +11,15 @@ import java.util.concurrent.CompletableFuture;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 @Service
 public class CommandStore implements ICommandStore {
 
     private ConcurrentMap<String, ICommandQueue> commandQueueMap;
+    private AtomicLong taskCount = new AtomicLong();
+    private AtomicLong asyncTaskCount = new AtomicLong();
 
     @Autowired
     private IServiceResolver serviceResolver;
@@ -55,29 +58,49 @@ public class CommandStore implements ICommandStore {
         return commandQueueMap.get(key);
     }
 
+
     @Override
-    public <R, T extends ICommand<R>> CompletableFuture<R> execute(ICommandExecutionContext<T> context) {
+    public long getAsyncTaskCount() {
+        return asyncTaskCount.get();
+    }
+
+    @Override
+    public long getTasKCount() {
+        return taskCount.get();
+    }
+
+    @Override
+    public <R, T extends ICommand<R>> CompletableFuture<R> execute(ICommandExecutionContext<T> context, ExecutionOptions options) {
 
         T cmd = context.getCommand();
         ICommandQueue queue = getCommandQueue(cmd, cmd.getClass());
         Supplier<R> task = () -> {
             try {
-                executeInternal(context);
+                taskCount.incrementAndGet();
+                executeInternal(context, options, queue);
             } catch (Exception e) {
                 throw new CommandExecutionException(e);
+            } finally {
+                taskCount.decrementAndGet();
             }
             return context.getCommand().getResponse();
         };
         return queue.post(task);
+
     }
 
-    private <T extends ICommand> void executeInternal(ICommandExecutionContext<T> context) {
-        executePreHandlers(context);
-        executeHandlers(context);
-        executePostHandlers(context);
+    public <T extends ICommand> void executeInternal(ICommandExecutionContext<T> context, ExecutionOptions options, ICommandQueue queue) {
+
+        executePreHandlers(context, options);
+        executeHandlers(context, options);
+        executePostHandlers(context, options);
+        if (!options.getIgnoreAsyncHandlers()) {
+            executeAsyncPostHandlers(context, options, queue);
+        }
+
     }
 
-    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context) {
+    private <T extends ICommand> void executeHandlers(ICommandExecutionContext<T> context, ExecutionOptions options) {
         ResolvableType handlerResolver = ResolvableType.forClassWithGenerics(ICommandHandler.class, context.getCommand().getClass());
         List<ICommandHandler<T>> handlers = serviceResolver.getServices(handlerResolver);
         List<CommandFilter> filters = serviceResolver.getServices(CommandFilter.class);
@@ -92,7 +115,7 @@ public class CommandStore implements ICommandStore {
         }
     }
 
-    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context) {
+    private <T extends ICommand> void executePreHandlers(ICommandExecutionContext<T> context, ExecutionOptions options) {
         ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPreHandler.class, context.getCommand().getClass());
         List<ICommandPreHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
         for (ICommandPreHandler<T> handler : preHandlers) {
@@ -100,11 +123,34 @@ public class CommandStore implements ICommandStore {
         }
     }
 
-    private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context) {
+    private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context, ExecutionOptions options) {
         ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPostHandler.class, context.getCommand().getClass());
         List<ICommandPostHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
         for (ICommandPostHandler<T> handler : preHandlers) {
             handler.handle(context);
+        }
+    }
+
+    private <T extends ICommand> void executeAsyncPostHandlers(ICommandExecutionContext<T> context, ExecutionOptions options, ICommandQueue queue) {
+
+        ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(IAsyncCommandHandler.class, context.getCommand().getClass());
+        List<IAsyncCommandHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
+
+        for (IAsyncCommandHandler<T> handler : preHandlers) {
+
+
+            Supplier task = () -> {
+                try {
+                    asyncTaskCount.incrementAndGet();
+                    handler.handle(context);
+                } finally {
+                    asyncTaskCount.decrementAndGet();
+                }
+                return null;
+            };
+
+            queue.post(task);
+
         }
     }
 

@@ -103,9 +103,6 @@ public class StockService {
             UpdateStockPriceCmd cmd = executionContext.getCommand();
             ICommandService commandService = executionContext.getCommandService();
 
-            CommandUtil.must(() -> executionContext.getUserId() == null,
-                    "Stock price can only be updated by the system.");
-
 
             Stock stock = findStockById(cmd.getStockId());
 

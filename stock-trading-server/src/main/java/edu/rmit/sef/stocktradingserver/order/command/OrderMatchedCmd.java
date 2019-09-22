@@ -9,12 +9,12 @@ import java.util.Date;
 public class OrderMatchedCmd extends Command<NullResp> {
     private Order buyOrder;
     private Order sellOrder;
-    private int tradeQuantity;
+    private long tradeQuantity;
     private double executedPrice;
     private Date executedOn;
     private String stockId;
 
-    public OrderMatchedCmd(Order buyOrder, Order sellOrder, String stockId, int tradeQuantity, double executedPrice) {
+    public OrderMatchedCmd(Order buyOrder, Order sellOrder, String stockId, long tradeQuantity, double executedPrice) {
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
         this.stockId = stockId;
@@ -50,11 +50,11 @@ public class OrderMatchedCmd extends Command<NullResp> {
         this.executedOn = executedOn;
     }
 
-    public int getTradeQuantity() {
+    public long getTradeQuantity() {
         return tradeQuantity;
     }
 
-    public void setTradeQuantity(int tradeQuantity) {
+    public void setTradeQuantity(long tradeQuantity) {
         this.tradeQuantity = tradeQuantity;
     }
 

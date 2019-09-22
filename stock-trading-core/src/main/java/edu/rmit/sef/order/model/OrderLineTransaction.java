@@ -5,12 +5,12 @@ import java.util.Date;
 public class OrderLineTransaction {
 
     private String orderId;
-    private int quantity;
+    private long quantity;
     private String orderLineTransactionId;
     private double executedPrice;
     private Date executedOn;
 
-    public OrderLineTransaction(String orderId, int quantity, String orderLineTransactionId, double executedPrice, Date executedOn) {
+    public OrderLineTransaction(String orderId, long quantity, String orderLineTransactionId, double executedPrice, Date executedOn) {
         this.orderId = orderId;
         this.quantity = quantity;
         this.orderLineTransactionId = orderLineTransactionId;
@@ -29,11 +29,11 @@ public class OrderLineTransaction {
         this.orderId = orderId;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 

@@ -14,12 +14,14 @@ public class ExecutionContextFactory implements IExecutionContextFactory {
     private ICommandServiceFactory commandServiceFactory;
 
     @Override
-    public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId) {
-        return create(command, userId, null);
+    public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId, ExecutionOptions options) {
+        return create(command, userId, options, null);
     }
 
     @Override
-    public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId, IExecutionContext parent) {
-        return new ExecutionContext<>(command, userId, serviceResolver, commandServiceFactory, parent);
+    public <T extends ICommand> ICommandExecutionContext<T> create(T command, String userId, ExecutionOptions options, IExecutionContext parent) {
+        return new ExecutionContext(command, userId, serviceResolver, commandServiceFactory, options, parent);
     }
+
+
 }

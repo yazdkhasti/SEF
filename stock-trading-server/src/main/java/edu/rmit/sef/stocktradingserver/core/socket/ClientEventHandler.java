@@ -31,8 +31,8 @@ public class ClientEventHandler {
 
             PublishEventCmd cmd = executionContext.getCommand();
 
-            if (cmd.getIsGlobal() && cmd.getUserId() == null) {
-                CommandUtil.throwCommandExecutionException("Global events must have user id.");
+            if (!cmd.getIsGlobal() && cmd.getUserId() == null) {
+                CommandUtil.throwCommandExecutionException("User events must have user id.");
             }
 
             SocketMessage message = SocketMessage.newMessage(cmd.getEventArg());

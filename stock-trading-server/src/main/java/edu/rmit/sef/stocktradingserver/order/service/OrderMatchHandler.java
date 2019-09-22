@@ -2,12 +2,17 @@ package edu.rmit.sef.stocktradingserver.order.service;
 
 import edu.rmit.command.core.*;
 import edu.rmit.sef.core.command.PublishEventCmd;
+import edu.rmit.sef.order.command.CreateOrderCmd;
+import edu.rmit.sef.order.command.FindOrderByIdCmd;
+import edu.rmit.sef.order.command.FindOrderByIdResp;
 import edu.rmit.sef.order.command.WithdrawOrderCmd;
 import edu.rmit.sef.order.model.*;
-import edu.rmit.sef.stock.command.UpdateStockCmd;
+import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
+import edu.rmit.sef.stock.model.Stock;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
+import edu.rmit.sef.stocktradingserver.order.repo.OrderLineTransactionRepository;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +30,9 @@ public class OrderMatchHandler {
     @Autowired
     MongoTemplate db;
 
+    @Autowired
+    OrderLineTransactionRepository orderLineTransactionRepository;
+
     private enum MatchType {
         Exact,
         GreatestPrice,
@@ -35,7 +43,10 @@ public class OrderMatchHandler {
     @Bean
     public IQueueKeySelector<MatchOrderCmd> matchOrderQueueKeySelector() {
 
-        return (command, tClass) -> tClass.getName() + command.getOrder().getStockId() + command.getOrder().getOrderType();
+        return (command, tClass) -> {
+            Order order = db.findById(command.getOrderId(), Order.class);
+            return tClass.getName() + order.getStockId();
+        };
 
     }
 
@@ -82,9 +93,16 @@ public class OrderMatchHandler {
             OrderMatchedCmd cmd = executionContext.getCommand();
             ICommandService commandService = executionContext.getCommandService();
 
+
             Order buyerOrder = cmd.getBuyOrder();
             OrderLineTransaction buyOrderLineTransaction = new OrderLineTransaction(buyerOrder.getId(), cmd.getTradeQuantity(), UUID.randomUUID().toString(), cmd.getExecutedPrice(), cmd.getExecutedOn());
             db.save(buyOrderLineTransaction);
+
+            UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
+            updateUserStockPortfolioCmd.setUserId(buyerOrder.getCreatedBy());
+            updateUserStockPortfolioCmd.setStockId(cmd.getStockId());
+            updateUserStockPortfolioCmd.setQuantityChanged(cmd.getTradeQuantity());
+            commandService.execute(updateUserStockPortfolioCmd);
 
             Order sellOrder = cmd.getSellOrder();
             OrderLineTransaction sellOrderLineTransaction = new OrderLineTransaction(sellOrder.getId(), cmd.getTradeQuantity(), UUID.randomUUID().toString(), cmd.getExecutedPrice(), cmd.getExecutedOn());
@@ -107,6 +125,7 @@ public class OrderMatchHandler {
             OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.getTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
             commandService.execute(new PublishEventCmd(sellerEvent, OrderEventNames.ORDER_MATCHED, sellOrder.getCreatedBy()));
 
+
             UpdateStockPriceCmd updateStockCmd = new UpdateStockPriceCmd();
             updateStockCmd.setPrice(cmd.getExecutedPrice());
             updateStockCmd.setStockId(cmd.getStockId());
@@ -117,14 +136,20 @@ public class OrderMatchHandler {
         };
     }
 
+
     @Bean
-    public ICommandHandler<MatchOrderCmd> matchOrderHandler() {
+    public IAsyncCommandHandler<MatchOrderCmd> matchOrderHandler() {
 
         return executionContext -> {
 
             MatchOrderCmd cmd = executionContext.getCommand();
-            Order order = cmd.getOrder();
             ICommandService commandService = executionContext.getCommandService();
+
+
+            Order order = db.findById(cmd.getOrderId(), Order.class);
+
+
+            CommandUtil.must(() -> order.validForTrade(), "Order is not in a valid state for trade.");
 
 
             boolean continueMatchingFlag = true;
@@ -138,7 +163,7 @@ public class OrderMatchHandler {
 
                     if (buyOrder != null) {
 
-                        commandService.execute(matchOrders(buyOrder, order, buyOrder.getPrice()));
+                        matchOrders(commandService, buyOrder, order, buyOrder.getPrice());
 
                     } else {
 
@@ -149,7 +174,7 @@ public class OrderMatchHandler {
                             continueMatchingFlag = false;
 
                         } else {
-                            commandService.execute(matchOrders(buyOrder, order, buyOrder.getPrice()));
+                            matchOrders(commandService, buyOrder, order, buyOrder.getPrice());
                         }
                     }
 
@@ -163,7 +188,7 @@ public class OrderMatchHandler {
 
                     if (sellOrder != null) {
 
-                        commandService.execute(matchOrders(order, sellOrder, sellOrder.getPrice()));
+                        matchOrders(commandService, order, sellOrder, sellOrder.getPrice());
 
                     } else {
 
@@ -175,7 +200,7 @@ public class OrderMatchHandler {
 
                         } else {
 
-                            commandService.execute(matchOrders(order, sellOrder, sellOrder.getPrice()));
+                            matchOrders(commandService, order, sellOrder, sellOrder.getPrice());
 
                         }
                     }
@@ -189,11 +214,11 @@ public class OrderMatchHandler {
     }
 
 
-    private OrderMatchedCmd matchOrders(Order buyOrder, Order sellOrder, double price) {
+    private void matchOrders(ICommandService commandService, Order buyOrder, Order sellOrder, double price) {
 
-        int tradeQuantity = Math.min(buyOrder.getRemainedQuantity(), sellOrder.getRemainedQuantity());
+        long tradeQuantity = Math.min(buyOrder.getRemainedQuantity(), sellOrder.getRemainedQuantity());
 
-        if (buyOrder.getStockId() != sellOrder.getStockId()) {
+        if (buyOrder.getStockId().compareTo(sellOrder.getStockId()) != 0) {
             CommandUtil.throwAppExecutionException("Buy order stock and sell order stock must be same.");
         }
 
@@ -205,7 +230,7 @@ public class OrderMatchHandler {
 
         db.save(sellOrder);
 
-        return new OrderMatchedCmd(buyOrder, sellOrder, buyOrder.getStockId(), tradeQuantity, price);
+        commandService.execute(new OrderMatchedCmd(buyOrder, sellOrder, buyOrder.getStockId(), tradeQuantity, price));
     }
 
     private Order getOrderFromQueue(String stockId, OrderType orderType, double price, MatchType matchType) {
@@ -220,11 +245,13 @@ public class OrderMatchHandler {
             criteria = Criteria.where("price").lte(price);
         }
 
-        criteria = criteria.andOperator(Criteria.where("orderType").is(orderType));
 
-        criteria = criteria.andOperator(Criteria.where("stockId").is(stockId));
+        criteria = criteria.andOperator(
+                Criteria.where("orderType").is(orderType),
+                Criteria.where("stockId").is(stockId),
+                Criteria.where("orderState").in(OrderState.PendingTrade, OrderState.PartiallyTraded)
+        );
 
-        criteria = criteria.andOperator(Criteria.where("orderState").in(OrderState.PendingTrade, OrderState.PartiallyTraded));
 
         Query query = Query.query(criteria).with(Sort.by(Sort.Direction.ASC, "createdOn"));
 

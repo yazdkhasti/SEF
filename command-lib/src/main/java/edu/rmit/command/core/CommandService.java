@@ -26,7 +26,18 @@ public class CommandService implements ICommandService {
 
     @Override
     public <R, T extends ICommand<R>> CompletableFuture<R> execute(T command) {
-        ICommandExecutionContext<T> context = executionContextFactory.create(command, userId, parentContext);
-        return store.execute(context);
+        ExecutionOptions options;
+        if (parentContext != null) {
+            options = parentContext.getOptions();
+        } else {
+            options = new ExecutionOptions();
+        }
+        return execute(command, options);
+    }
+
+    @Override
+    public <R, T extends ICommand<R>> CompletableFuture<R> execute(T command, ExecutionOptions options) {
+        ICommandExecutionContext<T> context = executionContextFactory.create(command, userId, options, parentContext);
+        return store.execute(context, options);
     }
 }
