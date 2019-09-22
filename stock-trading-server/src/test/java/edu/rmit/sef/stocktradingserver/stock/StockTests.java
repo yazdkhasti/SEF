@@ -22,7 +22,6 @@ public class StockTests extends BaseTest {
 
     @Test
     public void addStockTest() {
-        ICommandService commandService = getCommandService();
 
         String id = addStock();
 
@@ -71,7 +70,7 @@ public class StockTests extends BaseTest {
         updateStockCmd.setName("Google2");
         updateStockCmd.setName("goog2");
         updateStockCmd.setPrice(170.0);
-        NullResp updateCmdResp = commandService.execute(updateStockCmd).join();
+        commandService.execute(updateStockCmd).join();
 
 
         FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
@@ -97,11 +96,17 @@ public class StockTests extends BaseTest {
         addStockCmd.setName("Google");
         addStockCmd.setPrice(100);
 
-        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+        AddStockCmd addStockCmd2 = new AddStockCmd();
+        addStockCmd.setSymbol("mic");
+        addStockCmd.setName("Microsoft");
+        addStockCmd.setPrice(200);
+
+        commandService.execute(addStockCmd).join();
+        CreateEntityResp secondStockAddResp = commandService.execute(addStockCmd2).join();
 
         UpdateStockCmd updateStockCmd = new UpdateStockCmd();
 
-        updateStockCmd.setStockId(createEntityResp.getId());
+        updateStockCmd.setStockId(secondStockAddResp.getId());
         updateStockCmd.setSymbol("goog");
 
 
@@ -138,6 +143,87 @@ public class StockTests extends BaseTest {
 
 
     }
+
+
+
+    @Test(expected = CompletionException.class)
+    public void refuseApproveTest() {
+
+        ICommandService commandService = getCommandService();
+
+        AddStockCmd addStockCmd = new AddStockCmd();
+        addStockCmd.setSymbol("goog");
+        addStockCmd.setName("Google");
+        addStockCmd.setPrice(100);
+
+        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+
+        ApproveStockCmd approveStockCmd = new ApproveStockCmd();
+        approveStockCmd.setStockId(createEntityResp.getId());
+
+
+        commandService.execute(approveStockCmd).join();
+        commandService.execute(approveStockCmd).join();
+    }
+
+
+    @Test
+    public void disableTest() {
+
+        ICommandService commandService = getCommandService();
+
+        AddStockCmd addStockCmd = new AddStockCmd();
+        addStockCmd.setSymbol("goog");
+        addStockCmd.setName("Google");
+        addStockCmd.setPrice(100);
+
+        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+
+        ApproveStockCmd approveStockCmd = new ApproveStockCmd();
+        approveStockCmd.setStockId(createEntityResp.getId());
+        commandService.execute(approveStockCmd).join();
+
+        DisableStockCmd disableStockCmd = new DisableStockCmd();
+        disableStockCmd.setStockId(createEntityResp.getId());
+        commandService.execute(disableStockCmd).join();
+
+
+        FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
+        findStockByIdCmd.setId(createEntityResp.getId());
+
+        FindStockByIdResp findStockByIdResp = commandService.execute(findStockByIdCmd).join();
+
+        Stock stock = findStockByIdResp.getStock();
+
+        Assert.assertEquals(stock.getStockState(), StockState.Disabled);
+
+
+    }
+
+    @Test(expected = CompletionException.class)
+    public void refuseDisableTest() {
+
+        ICommandService commandService = getCommandService();
+
+        AddStockCmd addStockCmd = new AddStockCmd();
+        addStockCmd.setSymbol("goog");
+        addStockCmd.setName("Google");
+        addStockCmd.setPrice(100);
+
+        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+
+        ApproveStockCmd approveStockCmd = new ApproveStockCmd();
+        approveStockCmd.setStockId(createEntityResp.getId());
+        commandService.execute(approveStockCmd).join();
+
+        DisableStockCmd disableStockCmd = new DisableStockCmd();
+        disableStockCmd.setStockId(createEntityResp.getId());
+        commandService.execute(disableStockCmd).join();
+
+        commandService.execute(disableStockCmd).join();
+
+    }
+
 
 
 }

@@ -7,15 +7,12 @@ public class Order extends Entity {
 
     private String transactionId;
     private double price;
-    private long quantity;
+    private int quantity;
     private OrderType orderType;
     private OrderState orderState;
     private String stockId;
-    private long remainedQuantity;
 
-    public Order() {
-        this.orderState = OrderState.PendingTrade;
-    }
+    private int remainedQuantity;
 
     public String getStockId() {
         return stockId;
@@ -42,13 +39,12 @@ public class Order extends Entity {
         this.price = price;
     }
 
-    public long getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
-        this.remainedQuantity = quantity;
     }
 
     public OrderType getOrderType() {
@@ -67,24 +63,17 @@ public class Order extends Entity {
         this.orderState = orderState;
     }
 
-    public long getRemainedQuantity() {
+    public int getRemainedQuantity() {
         return remainedQuantity;
     }
 
-    public boolean validForTrade() {
-        boolean result = false;
-        if ((this.orderState == OrderState.PendingTrade || this.orderState == OrderState.PartiallyTraded) && remainedQuantity > 0) {
-            result = true;
-        }
-        return result;
+    public void setRemainedQuantity(int remainedQuantity) {
+        this.remainedQuantity = remainedQuantity;
     }
 
-    public void trade(long quantity) {
-
-        CommandUtil.must(() -> validForTrade(), "Order is not in valid state for trade");
-
+    public void trade(int quantity) {
         if (this.remainedQuantity < quantity) {
-            CommandUtil.throwAppExecutionException("Trade quantity cannot exceed remaining quantity.");
+            CommandUtil.throwAppExecutionException("Trade quantitu cannot exceed remaining quantity.");
         }
         if (this.remainedQuantity > quantity) {
             orderState = OrderState.PartiallyTraded;
@@ -94,17 +83,10 @@ public class Order extends Entity {
         remainedQuantity -= quantity;
     }
 
-    public boolean validForWithdraw() {
-        boolean result = false;
-        if (orderState == OrderState.PendingTrade || orderState == OrderState.PartiallyTraded) {
-            result = true;
-        }
-        return result;
-    }
-
     public void withdraw() {
-
-        CommandUtil.must(() -> validForWithdraw(), "The order state is not valid for withdraw");
+        if (orderState == OrderState.TradedCompletely || orderState == OrderState.PartiallyCanceled || orderState == OrderState.Canceled) {
+            CommandUtil.throwAppExecutionException("The order state is not valid for withdraw");
+        }
 
         remainedQuantity = 0;
 
@@ -116,7 +98,7 @@ public class Order extends Entity {
     }
 
     public static String getTransactionId(Long orderNumber) {
-        return String.format("TR%1$12s", orderNumber).replace(' ', '0');
+       return  String.format("TR%1$12s", orderNumber).replace(' ', '0');
     }
 
 
