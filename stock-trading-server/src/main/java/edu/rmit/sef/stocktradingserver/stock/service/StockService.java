@@ -212,6 +212,7 @@ public class StockService {
             List<Stock> result = db.find(query, Stock.class);
             long totalCount = db.count(query, Stock.class);
 
+
             GetAllStocksResp resp = new GetAllStocksResp();
             resp.setResult(result);
             resp.setTotalCount(totalCount);

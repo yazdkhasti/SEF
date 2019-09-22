@@ -3,6 +3,7 @@ package edu.rmit.sef.stocktradingserver.portfolio.service;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.NullResp;
+import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioCmd;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioResp;
 import edu.rmit.sef.portfolio.model.StockPortfolio;
@@ -10,6 +11,7 @@ import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.model.Stock;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
+import edu.rmit.sef.stocktradingserver.portfolio.repo.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +19,16 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.List;
+
 @Configuration
 public class PortfolioService {
 
     @Autowired
     private MongoTemplate db;
+
+    @Autowired
+    PortfolioRepository portfolioRepository;
 
 
     @Bean
@@ -49,8 +56,9 @@ public class PortfolioService {
             CommandUtil.must(() -> newQuantity >= 0, "Stock quantity owned by a client cannot be less than zero.");
 
             stockPortfolio.setQuantity(newQuantity);
+            stockPortfolio.update(executionContext.getUserId());
 
-            db.save(stockPortfolio);
+            portfolioRepository.save(stockPortfolio);
 
             cmd.setResponse(new NullResp());
 
@@ -78,11 +86,13 @@ public class PortfolioService {
 
                 Stock stock = findStockByIdResp.getStock();
 
-                stockPortfolio = new StockPortfolio();
+                stockPortfolio = Entity.newEntity(executionContext.getUserId(), StockPortfolio.class);
                 stockPortfolio.setStockId(stock.getId());
                 stockPortfolio.setUserId(cmd.getUserId());
                 stockPortfolio.setQuantity(0);
-                db.insert(stockPortfolio);
+
+                portfolioRepository.insert(stockPortfolio);
+
             }
 
             cmd.setResponse(new GetUserStockPortfolioResp(stockPortfolio));

@@ -3,14 +3,11 @@ package edu.rmit.sef.stocktradingserver.order.service;
 import edu.rmit.command.core.*;
 import edu.rmit.sef.core.command.PublishEventCmd;
 import edu.rmit.sef.order.command.CreateOrderCmd;
-import edu.rmit.sef.order.command.FindOrderByIdCmd;
-import edu.rmit.sef.order.command.FindOrderByIdResp;
 import edu.rmit.sef.order.command.WithdrawOrderCmd;
 import edu.rmit.sef.order.model.*;
-import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
-import edu.rmit.sef.stock.model.Stock;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
+import edu.rmit.sef.stocktradingserver.order.command.OrderExeutionParameters;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderLineTransactionRepository;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
@@ -30,6 +27,7 @@ public class OrderMatchHandler {
     @Autowired
     MongoTemplate db;
 
+
     @Autowired
     OrderLineTransactionRepository orderLineTransactionRepository;
 
@@ -45,7 +43,7 @@ public class OrderMatchHandler {
 
         return (command, tClass) -> {
             Order order = db.findById(command.getOrderId(), Order.class);
-            return tClass.getName() + order.getStockId();
+            return this.getClass().getName() + order.getStockId();
         };
 
     }
@@ -57,11 +55,12 @@ public class OrderMatchHandler {
         return (command, tClass) -> {
 
             Order order = db.findById(command.getOrderId(), Order.class);
-            return tClass.getName() + order.getStockId() + order.getOrderType();
+            return this.getClass().getName() + order.getStockId();
 
         };
 
     }
+
 
     @Bean
     public ICommandHandler<WithdrawOrderCmd> withdrawOrderHandler() {
@@ -74,17 +73,33 @@ public class OrderMatchHandler {
 
             db.save(order);
 
-            UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
-            updateUserStockPortfolioCmd.setQuantityChanged(-1 * order.getRemainedQuantity());
-            updateUserStockPortfolioCmd.setStockId(order.getStockId());
-            updateUserStockPortfolioCmd.setUserId(order.getCreatedBy());
-            executionContext.getCommandService().execute(updateUserStockPortfolioCmd).join();
+            if (order.getOrderType() == OrderType.Sell) {
+
+                UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
+                updateUserStockPortfolioCmd.setQuantityChanged(order.getRemainedQuantity());
+                updateUserStockPortfolioCmd.setStockId(order.getStockId());
+                updateUserStockPortfolioCmd.setUserId(order.getCreatedBy());
+                executionContext.getCommandService().execute(updateUserStockPortfolioCmd).join();
+
+            }
 
             cmd.setResponse(new NullResp());
 
         };
     }
 
+    @Bean
+    ICommandPostHandler<CreateOrderCmd> createOrderPostHandler() {
+        return executionContext -> {
+
+            CreateOrderCmd createOrderCmd = executionContext.getCommand();
+            String orderId = createOrderCmd.getResponse().getId();
+
+            MatchOrderCmd matchOrderCmd = new MatchOrderCmd();
+            matchOrderCmd.setOrderId(orderId);
+            executionContext.getCommandService().execute(matchOrderCmd);
+        };
+    }
 
     @Bean
     public ICommandHandler<OrderMatchedCmd> orderMatchedHandler() {
@@ -119,10 +134,10 @@ public class OrderMatchHandler {
             db.save(masterTransaction);
 
 
-            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.getTransactionId(), buyerOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.formatTransactionId(), buyerOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
             commandService.execute(new PublishEventCmd(buyerEvent, OrderEventNames.ORDER_MATCHED, buyerOrder.getCreatedBy()));
 
-            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.getTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.formatTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
             commandService.execute(new PublishEventCmd(sellerEvent, OrderEventNames.ORDER_MATCHED, sellOrder.getCreatedBy()));
 
 
@@ -138,9 +153,15 @@ public class OrderMatchHandler {
 
 
     @Bean
-    public IAsyncCommandHandler<MatchOrderCmd> matchOrderHandler() {
+    public ICommandHandler<MatchOrderCmd> matchOrderHandler() {
 
         return executionContext -> {
+
+            ExecutionOptions executionOptions = executionContext.getOptions();
+
+            if (executionOptions.getExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, false)) {
+                return;
+            }
 
             MatchOrderCmd cmd = executionContext.getCommand();
             ICommandService commandService = executionContext.getCommandService();

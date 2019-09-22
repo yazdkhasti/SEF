@@ -73,6 +73,14 @@ public abstract class Entity {
         return null;
     }
 
-    public void validate() { }
+    public void update(String userId) {
+        this.modifiedBy = userId;
+        this.modifiedOn = new Date();
+    }
+
+
+    public void validate() {
+    }
+
 
 }

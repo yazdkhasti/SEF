@@ -124,9 +124,9 @@ public class CommandStore implements ICommandStore {
     }
 
     private <T extends ICommand> void executePostHandlers(ICommandExecutionContext<T> context, ExecutionOptions options) {
-        ResolvableType preHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPostHandler.class, context.getCommand().getClass());
-        List<ICommandPostHandler<T>> preHandlers = serviceResolver.getServices(preHandlerResolver);
-        for (ICommandPostHandler<T> handler : preHandlers) {
+        ResolvableType postHandlerResolver = ResolvableType.forClassWithGenerics(ICommandPostHandler.class, context.getCommand().getClass());
+        List<ICommandPostHandler<T>> postHandlers = serviceResolver.getServices(postHandlerResolver);
+        for (ICommandPostHandler<T> handler : postHandlers) {
             handler.handle(context);
         }
     }
