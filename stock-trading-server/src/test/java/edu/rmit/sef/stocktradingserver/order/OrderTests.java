@@ -3,18 +3,26 @@ package edu.rmit.sef.stocktradingserver.order;
 
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.sef.order.command.CreateOrderCmd;
+import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrdersCmd;
 import edu.rmit.sef.order.command.RemoveOrderCmd;
+import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
+import edu.rmit.sef.user.command.*;
+import edu.rmit.sef.user.model.SystemUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletionException;
 
 @RunWith(SpringRunner.class)
@@ -27,17 +35,14 @@ public class OrderTests extends BaseTest {
     @Test
     public void createOrdetTest() {
         ICommandService commandService = getCommandService();
-
+        String id = addStock();
         CreateOrderCmd cmd = new CreateOrderCmd();
-       // cmd.setOrderNumber("1");
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(100);
+        cmd.setPrice(300);
         cmd.setQuantity(10);
-        cmd.setStockId("1");
-
+        cmd.setStockId(id);
 
         commandService.execute(cmd).join();
-
 
         Assert.assertNotNull(cmd.getResponse().getId());
 
@@ -46,13 +51,12 @@ public class OrderTests extends BaseTest {
     @Test(expected = CompletionException.class)
     public void preventDuplicateOrderTest() {
         ICommandService commandService = getCommandService();
-
+        String id = addStock();
         CreateOrderCmd cmd = new CreateOrderCmd();
-        //cmd.setOrderNumber("2");
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(100);
+        cmd.setPrice(300);
         cmd.setQuantity(10);
-        cmd.setStockId("2");
+        cmd.setStockId(id);
 
 
         commandService.execute(cmd).join();
@@ -76,29 +80,37 @@ public class OrderTests extends BaseTest {
 
     @Test
     public void getOrderTest() {
+        List<Order> list ;
+        String userId = addUser();
+        String id = addStock();
+        ICommandService commandService = getCommandService(userId);
 
-        ICommandService commandService = getCommandService();
+        Order orderExample = new Order();
+        orderExample.setId(userId);
+        Example<Order> example = Example.of(orderExample);
+        list = orderRepository.findAll(example);
+
+        Assert.assertEquals(list.size(),0);
+
+
+
         CreateOrderCmd cmd = new CreateOrderCmd();
-        //cmd.setOrderNumber("5");
-        cmd.setOrderType(OrderType.Sell);
-        cmd.setPrice(100);
-        cmd.setQuantity(10);
-        cmd.setStockId("5");
 
+        cmd.setOrderType(OrderType.Buy);
+        cmd.setPrice(500);
+        cmd.setQuantity(10);
+        cmd.setStockId(id);
 
         commandService.execute(cmd).join();
-       // System.out.println("create Order: " + cmd.getOrderNumber());
 
-        GetAllOrdersCmd cmd2 = new GetAllOrdersCmd();
 
-//        commandService.execute(cmd2).join();
-//        System.out.println("Test: " + cmd2.getOrderList().get(0).getTransactionId());
-//
-//        for (int i = 0; i < cmd2.getOrderList().size(); i++) {
-//            System.out.println("OrderNumber: " + cmd2.getOrderList().get(i).getTransactionId());
-//        }
+        GetAllOrderCmd cmd2 = new GetAllOrderCmd();
+        cmd2.setPageNumber(0);
+        cmd2.setPageSize(10);
+        commandService.execute(cmd2).join();
 
-        Assert.assertNotNull(cmd2.getResponse());
+        System.out.println("OrderList" +cmd2.getResponse().getOrderList().get(0).getTransactionId());
+        Assert.assertNotNull(cmd2.getResponse().getOrderList());
 
     }
 
