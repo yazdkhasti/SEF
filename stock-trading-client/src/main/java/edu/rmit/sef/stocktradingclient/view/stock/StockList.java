@@ -17,7 +17,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -52,12 +53,13 @@ public class StockList extends JavaFXController {
         root.getChildren().add(toolbar);
 
 
-        Button addStockBtn = new Button("Add Stock");
-        addStockBtn.setOnAction(event -> {
-            getViewManager().openModal(ViewNames.Stock.Stock, null);
-        });
-        addStockBtn.visibleProperty().bindBidirectional(new SimpleBooleanProperty(getPermissionManager().isAdmin()));
-        toolbar.getChildren().add(addStockBtn);
+        if (getPermissionManager().isAdmin()) {
+            Button addStockBtn = new Button("Add Stock");
+            addStockBtn.setOnAction(event -> {
+                getViewManager().openModal(ViewNames.Stock.Stock, null);
+            });
+            toolbar.getChildren().add(addStockBtn);
+        }
 
 
         Button refreshBtn = new Button("Refresh");

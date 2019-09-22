@@ -94,13 +94,8 @@ public class OrderHandler {
             double minValue = stock.getPrice() - orderPriceThreshold;
 
 
-            CommandUtil.must(() -> orderPrice < maxValue || orderPrice > minValue,
+            CommandUtil.must(() -> orderPrice <= maxValue || orderPrice >= minValue,
                     "Buy/Sell orders must be within +/-10 cents of the last trade.");
-
-            if (orderPrice < maxValue && orderPrice > minValue) {
-                CommandUtil.throwAppExecutionException("Buy/Sell orders must be within +/-10 cents of the last trade.");
-            }
-
 
 
             if (order.getOrderType() == OrderType.Sell) {
@@ -115,7 +110,7 @@ public class OrderHandler {
 
                 StockPortfolio stockPortfolio = getUserStockPortfolioResp.getStockPortfolio();
 
-                CommandUtil.must(() -> order.getQuantity() > stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
+                CommandUtil.must(() -> order.getQuantity() <= stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
 
                 UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
                 updateUserStockPortfolioCmd.setStockId(cmd.getStockId());

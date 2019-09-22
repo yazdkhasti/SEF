@@ -2,8 +2,7 @@ package edu.rmit.sef.stocktradingserver.order.service;
 
 import edu.rmit.command.core.*;
 import edu.rmit.sef.core.command.PublishEventCmd;
-import edu.rmit.sef.order.command.CreateOrderCmd;
-import edu.rmit.sef.order.command.WithdrawOrderCmd;
+import edu.rmit.sef.order.command.*;
 import edu.rmit.sef.order.model.*;
 import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
@@ -19,6 +18,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.List;
 import java.util.UUID;
 
 @Configuration
@@ -128,8 +128,9 @@ public class OrderMatchHandler {
             masterTransaction.setBuyerOrderId(buyerOrder.getId());
             masterTransaction.setSellerOrderId(sellOrder.getId());
             masterTransaction.setBuyerOrderLineTransactionId(buyOrderLineTransaction.getOrderLineTransactionId());
-            masterTransaction.setBuyerOrderLineTransactionId(sellOrderLineTransaction.getOrderLineTransactionId());
+            masterTransaction.setSellerOrderLineTransactionId(sellOrderLineTransaction.getOrderLineTransactionId());
             masterTransaction.setTradeQuantity(cmd.getTradeQuantity());
+            masterTransaction.setExecutedPrice(cmd.getExecutedPrice());
             masterTransaction.setExecutedOn(cmd.getExecutedOn());
             db.save(masterTransaction);
 
@@ -195,11 +196,11 @@ public class OrderMatchHandler {
                             continueMatchingFlag = false;
 
                         } else {
-                            matchOrders(commandService, buyOrder, order, buyOrder.getPrice());
+                            matchOrders(commandService, buyOrder, order, order.getPrice());
                         }
                     }
 
-                } while (continueMatchingFlag);
+                } while (continueMatchingFlag && order.validForTrade());
 
             } else {
 
@@ -225,7 +226,7 @@ public class OrderMatchHandler {
 
                         }
                     }
-                } while (continueMatchingFlag);
+                } while (continueMatchingFlag && order.validForTrade());
             }
 
             cmd.setResponse(new NullResp());
@@ -234,6 +235,42 @@ public class OrderMatchHandler {
 
     }
 
+    @Bean
+    public ICommandHandler<GetOrderTradeTransactionsCmd> getOrderTradeTransactionsHandler() {
+
+        return executionContext -> {
+
+            GetOrderTradeTransactionsCmd cmd = executionContext.getCommand();
+
+            Order order = db.findById(cmd.getOrderId(), Order.class);
+
+            List<TradeTransaction> tradeTransactions = getOrderTradeTransactions(order.getId(), order.getOrderType());
+
+            GetOrderTradeTransactionsResp resp = new GetOrderTradeTransactionsResp();
+            resp.setTradeTransactions(tradeTransactions);
+
+            cmd.setResponse(resp);
+        };
+
+    }
+
+    @Bean
+    public ICommandHandler<GetOrderTransactionLinesCmd> getOrderTransactionLinesHandler() {
+
+        return executionContext -> {
+
+            GetOrderTransactionLinesCmd cmd = executionContext.getCommand();
+
+            List<OrderLineTransaction> tradeTransactions = getOrderTransactionsLines(cmd.getOrderId());
+
+            GetOrderTransactionLinesResp resp = new GetOrderTransactionLinesResp();
+            resp.setOrderLineTransactions(tradeTransactions);
+
+            cmd.setResponse(resp);
+
+        };
+
+    }
 
     private void matchOrders(ICommandService commandService, Order buyOrder, Order sellOrder, double price) {
 
@@ -273,9 +310,41 @@ public class OrderMatchHandler {
                 Criteria.where("orderState").in(OrderState.PendingTrade, OrderState.PartiallyTraded)
         );
 
+        Query query = Query.query(criteria);
 
-        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.ASC, "createdOn"));
+        if (matchType == MatchType.GreatestPrice) {
+            query = query.with(Sort.by(Sort.Direction.DESC, "price"));
+        } else if ((matchType == MatchType.LowestPrice)) {
+            query = query.with(Sort.by(Sort.Direction.ASC, "price"));
+        }
+
+        query = query.with(Sort.by(Sort.Direction.ASC, "createdOn"));
 
         return db.findOne(query, Order.class);
+    }
+
+    private List<TradeTransaction> getOrderTradeTransactions(String orderId, OrderType orderType) {
+
+        Criteria criteria;
+
+        if (orderType == OrderType.Buy) {
+            criteria = Criteria.where("buyerOrderId").is(orderId);
+        } else {
+            criteria = Criteria.where("sellerOrderId").is(orderId);
+        }
+
+
+        Query query = Query.query(criteria);
+
+        return db.find(query, TradeTransaction.class);
+    }
+
+    private List<OrderLineTransaction> getOrderTransactionsLines(String orderId) {
+
+        Criteria criteria = Criteria.where("orderId").is(orderId);
+
+        Query query = Query.query(criteria);
+
+        return db.find(query, OrderLineTransaction.class);
     }
 }

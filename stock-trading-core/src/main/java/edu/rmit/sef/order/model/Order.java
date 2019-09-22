@@ -83,7 +83,7 @@ public class Order extends Entity {
 
         CommandUtil.must(() -> validForTrade(), "Order is not in valid state for trade");
 
-        CommandUtil.must(() -> this.remainedQuantity < quantity, "Trade quantity cannot exceed remaining quantity.");
+        CommandUtil.must(() -> this.remainedQuantity >= quantity, "Trade quantity cannot exceed remaining quantity.");
 
         if (this.remainedQuantity > quantity) {
             orderState = OrderState.PartiallyTraded;

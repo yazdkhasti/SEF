@@ -20,6 +20,7 @@ public class OrderMatchedCmd extends Command<NullResp> {
         this.stockId = stockId;
         this.tradeQuantity = tradeQuantity;
         this.executedPrice = executedPrice;
+        this.executedOn = new Date();
     }
 
     public OrderMatchedCmd() {
