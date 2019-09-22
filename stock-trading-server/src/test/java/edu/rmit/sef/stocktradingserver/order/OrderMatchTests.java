@@ -14,6 +14,7 @@ import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
+import edu.rmit.sef.stocktradingserver.order.command.OrderExeutionParameters;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
 import net.bytebuddy.implementation.bind.annotation.Super;
 import org.junit.Assert;
@@ -32,6 +33,7 @@ public class OrderMatchTests extends BaseTest {
 
     @Test
     public void OrderMatchTest() {
+
         ICommandService commandService = getCommandService();
 
         String stockId = addStock(300.5);
@@ -39,19 +41,21 @@ public class OrderMatchTests extends BaseTest {
         String secondUserId = addUser();
 
         ExecutionOptions executionOptions = new ExecutionOptions();
-        executionOptions.setIgnoreAsyncHandlers(true);
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
 
         String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        addPortfolio(secondUserId, stockId, 20);
+        String sellOrderId = addOrder(secondUserId, stockId, 20, 300.6, OrderType.Sell, executionOptions);
+
+
+        waitForAllTasks();
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
         FindOrderByIdResp findBuyOrderByIdResp = commandService.execute(findBuyOrderByIdCmd).join();
 
-        addPortfolio(secondUserId, stockId, 20);
-
         Assert.assertEquals(findBuyOrderByIdResp.getOrder().getOrderState(), OrderState.PendingTrade);
-
-        String sellOrderId = addOrder(secondUserId, stockId, 20, 300.6, OrderType.Sell, executionOptions);
 
         FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
         findSellOrderByIdCmd.setOrderId(sellOrderId);
@@ -64,7 +68,7 @@ public class OrderMatchTests extends BaseTest {
         matchBuyOrderCmd.setOrderId(buyOrderId);
         commandService.execute(matchBuyOrderCmd).join();
 
-        waitForAsyncTasks();
+        waitForAllTasks();
 
 
         FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
@@ -86,19 +90,15 @@ public class OrderMatchTests extends BaseTest {
         String secondUserId = addUser();
 
         ExecutionOptions executionOptions = new ExecutionOptions();
-        executionOptions.setIgnoreAsyncHandlers(true);
 
 
         String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
 
+        addPortfolio(secondUserId, stockId, 20);
         String sellOrderId = addOrder(secondUserId, stockId, 20, 300.6, OrderType.Sell, executionOptions);
 
 
-        MatchOrderCmd matchBuyOrderCmd = new MatchOrderCmd();
-        matchBuyOrderCmd.setOrderId(buyOrderId);
-        commandService.execute(matchBuyOrderCmd).join();
-
-        waitForAsyncTasks();
+        waitForAllTasks();
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
@@ -116,6 +116,8 @@ public class OrderMatchTests extends BaseTest {
         Assert.assertEquals(findSellOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 0);
 
         //Match again
+        MatchOrderCmd matchBuyOrderCmd = new MatchOrderCmd();
+        matchBuyOrderCmd.setOrderId(buyOrderId);
         commandService.execute(matchBuyOrderCmd).join();
 
         waitForAsyncTasks();
@@ -135,10 +137,11 @@ public class OrderMatchTests extends BaseTest {
 
         String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
 
+        addPortfolio(secondUserId, stockId, 30);
         String sellOrderId = addOrder(secondUserId, stockId, 30, 300.6, OrderType.Sell, executionOptions);
 
 
-        waitForAsyncTasks();
+        waitForAllTasks();
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
@@ -168,12 +171,15 @@ public class OrderMatchTests extends BaseTest {
 
         ExecutionOptions executionOptions = new ExecutionOptions();
 
+
         String buyOrderId = addOrder(firstUserId, firstStockId, 20, 300.6, OrderType.Buy, executionOptions);
 
+
+        addPortfolio(secondUserId, secondStockId, 30);
         String sellOrderId = addOrder(secondUserId, secondStockId, 20, 300.6, OrderType.Sell, executionOptions);
 
 
-        waitForAsyncTasks();
+        waitForAllTasks();
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
@@ -204,6 +210,7 @@ public class OrderMatchTests extends BaseTest {
 
         String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
 
+        addPortfolio(secondUserId, stockId, 20);
         String sellOrderId = addOrder(secondUserId, stockId, 20, 300.6, OrderType.Sell, executionOptions);
 
 
@@ -248,7 +255,7 @@ public class OrderMatchTests extends BaseTest {
 
         GetUserStockPortfolioCmd getUserStockPortfolioCmd = new GetUserStockPortfolioCmd();
         getUserStockPortfolioCmd.setStockId(stockId);
-        getUserStockPortfolioCmd.setUserId(secondUserId);
+        getUserStockPortfolioCmd.setUserId(firstUserId);
 
         GetUserStockPortfolioResp getUserStockPortfolioResp = commandService.execute(getUserStockPortfolioCmd).join();
 

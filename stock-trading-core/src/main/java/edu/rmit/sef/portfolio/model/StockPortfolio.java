@@ -1,6 +1,8 @@
 package edu.rmit.sef.portfolio.model;
 
-public class StockPortfolio {
+import edu.rmit.sef.core.model.Entity;
+
+public class StockPortfolio extends Entity {
 
     private String userId;
     private String stockId;

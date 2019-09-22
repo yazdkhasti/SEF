@@ -9,7 +9,7 @@ public class GetAllCmd<T> extends Command<T> {
 
     private String filter = "";
     private int pageNumber;
-    private int pageSize = 50;
+    private int pageSize = 10;
 
     public String getFilter() {
         return filter;
