@@ -75,6 +75,8 @@ public class OrderHandler {
 
             CreateOrderCmd cmd = executionContext.getCommand();
 
+            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
+
             CommandUtil.must(() -> cmd.getQuantity() <= orderQuantityThreshold,
                     "Quantity bought or sold cannot exceed " + orderQuantityThreshold + " for each order");
 
@@ -97,9 +99,8 @@ public class OrderHandler {
             double maxValue = stock.getPrice() + orderPriceThreshold;
             double minValue = stock.getPrice() - orderPriceThreshold;
 
-
-            if (orderPrice <= maxValue && orderPrice >= minValue)
-                CommandUtil.throwAppExecutionException("Buy/Sell orders must be within +/-10 cents of the last trade.");
+            CommandUtil.must(() -> orderPrice <= maxValue && orderPrice >= minValue,
+                    "Buy/Sell orders must be within +/-10 cents of the last trade.");
 
 
             if (order.getOrderType() == OrderType.Sell) {
@@ -140,8 +141,6 @@ public class OrderHandler {
             cmd.setResponse(new CreateEntityResp(order.getId()));
 
 
-
-
         };
 
     }
@@ -159,7 +158,7 @@ public class OrderHandler {
             Criteria criteria = Criteria.where("CreatedBy").regex(executionContext.getUserId(), "i");
 
             Query query = Query.query(criteria);
-            long orderCount = db.count(query,Order.class);
+            long orderCount = db.count(query, Order.class);
             query.with(cmd.toPageable());
             orderList = db.find(query, Order.class);
 

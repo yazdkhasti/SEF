@@ -88,6 +88,7 @@ public class BaseTest {
 
     }
 
+
     public String addStock() {
         return addStock(100.00);
     }
