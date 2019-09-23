@@ -1,7 +1,10 @@
 package edu.rmit.sef.stocktradingserver.order;
 
 
+import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandService;
+import edu.rmit.command.exception.AppExecutionException;
+import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrdersCmd;
@@ -34,11 +37,12 @@ public class OrderTests extends BaseTest {
 
     @Test
     public void createOrdetTest() {
-        ICommandService commandService = getCommandService();
-        String id = addStock();
+        String userId = addUser();
+        ICommandService commandService = getCommandService(userId);
+        String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(300);
+        cmd.setPrice(400);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
@@ -48,41 +52,63 @@ public class OrderTests extends BaseTest {
 
     }
 
-    @Test(expected = CompletionException.class)
-    public void preventDuplicateOrderTest() {
-        ICommandService commandService = getCommandService();
-        String id = addStock();
+    @Test
+    public void createOrdetTest2() {
+        String userId = addUser();
+        ICommandService commandService = getCommandService(userId);
+        String id = addStock(300);
+        addPortfolio(userId,id,100);
         CreateOrderCmd cmd = new CreateOrderCmd();
-        cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(300);
+        cmd.setOrderType(OrderType.Sell);
+        cmd.setPrice(400);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
-
         commandService.execute(cmd).join();
 
-        commandService.execute(cmd).join();
+        Assert.assertNotNull(cmd.getResponse().getId());
+
     }
 
-
-
-    @Test(expected = CompletionException.class)
-    public void preventNullOrderTest() {
-        ICommandService commandService = getCommandService();
-
-        RemoveOrderCmd cmd = new RemoveOrderCmd();
-        cmd.setOrderNumber("3");
+    @Test(expected = CommandExecutionException.class)
+    public void createInvalidOrderTest() {
+        String userId = addUser();
+        ICommandService commandService = getCommandService(userId);
+        String id = addStock(300);
+        CreateOrderCmd cmd = new CreateOrderCmd();
+        cmd.setOrderType(OrderType.Sell);
+        cmd.setPrice(300.1);
+        cmd.setQuantity(10);
+        cmd.setStockId(id);
 
         commandService.execute(cmd).join();
 
+        Assert.assertNotNull(cmd.getResponse().getId());
     }
+
+    @Test(expected = CommandExecutionException.class)
+    public void createInvalidOrderTest2() {
+        String userId = addUser();
+        ICommandService commandService = getCommandService(userId);
+        String id = addStock(200);
+        CreateOrderCmd cmd = new CreateOrderCmd();
+        cmd.setOrderType(OrderType.Sell);
+        cmd.setPrice(400);
+        cmd.setQuantity(10);
+        cmd.setStockId(id);
+
+        commandService.execute(cmd).join();
+
+        Assert.assertNotNull(cmd.getResponse().getId());
+    }
+
 
 
     @Test
     public void getOrderTest() {
         List<Order> list ;
         String userId = addUser();
-        String id = addStock();
+        String id = addStock(300);
         ICommandService commandService = getCommandService(userId);
 
         Order orderExample = new Order();
