@@ -3,10 +3,7 @@ package edu.rmit.sef.stocktradingserver.order;
 import edu.rmit.command.core.ExecutionOptions;
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.exception.CommandExecutionException;
-import edu.rmit.sef.order.command.FindOrderByIdCmd;
-import edu.rmit.sef.order.command.FindOrderByIdResp;
-import edu.rmit.sef.order.command.GetOrderTradeTransactionsCmd;
-import edu.rmit.sef.order.command.GetOrderTradeTransactionsResp;
+import edu.rmit.sef.order.command.*;
 import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.order.model.TradeTransaction;
@@ -428,5 +425,167 @@ public class OrderMatchTests extends BaseTest {
 
     }
 
+    @Test
+    public void withdrawOrderTest() {
+
+        ICommandService commandService = getCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
+        withdrawOrderCmd.setOrderId(buyOrderId);
+
+        commandService.execute(withdrawOrderCmd).join();
+
+        FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
+        findBuyOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+
+
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.Canceled);
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 20);
+
+
+    }
+
+    @Test
+    public void partialWithdrawOrderTest() {
+
+        ICommandService commandService = getCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+        String secondUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        addPortfolio(secondUserId, stockId, 10);
+        String sellOrderId = addOrder(secondUserId, stockId, 10, 300.6, OrderType.Sell, executionOptions);
+
+        waitForAllTasks();
+
+        WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
+        withdrawOrderCmd.setOrderId(buyOrderId);
+
+        commandService.execute(withdrawOrderCmd).join();
+
+
+        FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
+        findBuyOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(sellOrderId);
+        FindOrderByIdResp findSellOrderByIdAfterMatchResp = commandService.execute(findSellOrderByIdCmd).join();
+
+
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.PartiallyCanceled);
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 10);
+
+        Assert.assertEquals(findSellOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.TradedCompletely);
+        Assert.assertEquals(findSellOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 0);
+
+
+    }
+
+
+    @Test(expected = CommandExecutionException.class)
+    public void withdrawAlreadyWithdrawnOrderTest() {
+
+        ICommandService commandService = getCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+        String secondUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        waitForAllTasks();
+
+        WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
+        withdrawOrderCmd.setOrderId(buyOrderId);
+        commandService.execute(withdrawOrderCmd).join();
+
+
+        FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
+        findBuyOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+
+
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.Canceled);
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 20);
+
+        //withdraw again
+        commandService.execute(withdrawOrderCmd).join();
+
+
+    }
+
+    @Test
+    public void withdrawOrderAndPortfolioIntegrationTest() {
+
+        ICommandService commandService = getCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+        String secondUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+
+
+        String buyOrderId = addOrder(firstUserId, stockId, 25, 300.6, OrderType.Buy, executionOptions);
+
+        addPortfolio(secondUserId, stockId, 10);
+        String sellOrderId = addOrder(secondUserId, stockId, 10, 300.6, OrderType.Sell, executionOptions);
+
+        waitForAllTasks();
+
+        WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
+        withdrawOrderCmd.setOrderId(buyOrderId);
+
+        commandService.execute(withdrawOrderCmd).join();
+
+
+        FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
+        findBuyOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(sellOrderId);
+        FindOrderByIdResp findSellOrderByIdAfterMatchResp = commandService.execute(findSellOrderByIdCmd).join();
+
+
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.PartiallyCanceled);
+        Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 15);
+
+        Assert.assertEquals(findSellOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.TradedCompletely);
+        Assert.assertEquals(findSellOrderByIdAfterMatchResp.getOrder().getRemainedQuantity(), 0);
+
+        GetUserStockPortfolioCmd getUserStockPortfolioCmd = new GetUserStockPortfolioCmd();
+        getUserStockPortfolioCmd.setUserId(firstUserId);
+        getUserStockPortfolioCmd.setStockId(stockId);
+        GetUserStockPortfolioResp getUserStockPortfolioResp = commandService.execute(getUserStockPortfolioCmd).join();
+
+        Assert.assertEquals(getUserStockPortfolioResp.getStockPortfolio().getUserId(), firstUserId);
+        Assert.assertEquals(getUserStockPortfolioResp.getStockPortfolio().getStockId(), stockId);
+        Assert.assertEquals(getUserStockPortfolioResp.getStockPortfolio().getQuantity(), 10);
+
+
+    }
 
 }

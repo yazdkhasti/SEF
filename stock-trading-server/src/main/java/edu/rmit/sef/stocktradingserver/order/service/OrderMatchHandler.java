@@ -69,9 +69,12 @@ public class OrderMatchHandler {
             WithdrawOrderCmd cmd = executionContext.getCommand();
 
             Order order = db.findById(cmd.getOrderId(), Order.class);
+
             order.withdraw();
+            order.update(executionContext.getUserId());
 
             db.save(order);
+
 
             if (order.getOrderType() == OrderType.Sell) {
 

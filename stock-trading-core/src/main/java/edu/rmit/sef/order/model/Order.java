@@ -105,8 +105,6 @@ public class Order extends Entity {
 
         CommandUtil.must(() -> validForWithdraw(), "The order state is not valid for withdraw");
 
-        remainedQuantity = 0;
-
         if (orderState == OrderState.PartiallyTraded) {
             orderState = OrderState.PartiallyCanceled;
         } else {
