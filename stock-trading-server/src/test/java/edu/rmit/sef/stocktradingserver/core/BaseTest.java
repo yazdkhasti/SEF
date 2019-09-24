@@ -11,6 +11,7 @@ import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.stock.command.AddStockCmd;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import edu.rmit.sef.user.command.RegisterUserCmd;
+import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;
@@ -36,6 +37,10 @@ public class BaseTest {
 
     public ICommandService getCommandService(String userId) {
         return commandServiceFactory.createService(userId);
+    }
+
+    public ICommandService getSystemCommandService() {
+        return commandServiceFactory.createService(SystemUser.SYSTEM_USER_ID);
     }
 
     private void setCommandService(ICommandService commandService) {
@@ -95,7 +100,7 @@ public class BaseTest {
 
     public String addStock(double price) {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         String symbol = getRandomString("symbol");
 
@@ -112,7 +117,7 @@ public class BaseTest {
 
     public void addPortfolio(String userId, String stockId, int quantity) {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
         updateUserStockPortfolioCmd.setStockId(stockId);

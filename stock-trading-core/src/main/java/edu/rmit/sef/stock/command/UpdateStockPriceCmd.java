@@ -2,7 +2,10 @@ package edu.rmit.sef.stock.command;
 
 import edu.rmit.command.core.Command;
 import edu.rmit.command.core.NullResp;
+import edu.rmit.command.security.CommandAuthority;
 
+
+@CommandAuthority()
 public class UpdateStockPriceCmd extends Command<NullResp> {
 
     private String stockId;

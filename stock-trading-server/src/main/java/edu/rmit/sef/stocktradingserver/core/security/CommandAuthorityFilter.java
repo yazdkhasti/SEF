@@ -4,15 +4,41 @@ import edu.rmit.command.core.CommandFilter;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.IExecutionContext;
 import edu.rmit.command.security.CommandAuthority;
-import edu.rmit.sef.user.model.SystemUserPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import edu.rmit.sef.user.command.FindUserByIdCmd;
+import edu.rmit.sef.user.command.FindUserByIdResp;
+import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class CommandAuthorityFilter extends CommandFilter {
+
+    private ConcurrentMap<String, List<String>> permissionCache = new ConcurrentHashMap<>();
+
+
+    private List<String> getAuthorities(IExecutionContext context) {
+
+        String userId = context.getUserId();
+
+        if (userId == null) {
+            CommandUtil.throwSecurityException();
+        }
+
+        List<String> ownedAuthorities = permissionCache.get(userId);
+
+        if (ownedAuthorities == null) {
+            FindUserByIdCmd findUserByIdCmd = new FindUserByIdCmd();
+            findUserByIdCmd.setUserId(userId);
+            FindUserByIdResp resp = context.getCommandService().execute(findUserByIdCmd).join();
+            ownedAuthorities = resp.getUser().getAuthorities();
+            permissionCache.putIfAbsent(userId, ownedAuthorities);
+        }
+
+        return ownedAuthorities;
+    }
 
     @Override
     public void beforeExecution(IExecutionContext context) {
@@ -21,28 +47,27 @@ public class CommandAuthorityFilter extends CommandFilter {
 
         if (tClass.isAnnotationPresent(CommandAuthority.class)) {
 
-            CommandAuthority commandAuthority = tClass.getAnnotation(CommandAuthority.class);
+            CommandAuthority[] commandAuthorities = tClass.getAnnotationsByType(CommandAuthority.class);
 
-            String[] authorities = commandAuthority.value();
+            if (context.getUserId() == null) {
+                CommandUtil.throwSecurityException();
+            }
 
-            if (authorities.length > 0) {
+            if (SystemUser.SYSTEM_USER_ID.compareTo(context.getUserId()) == 0) {
+                return;
+            }
 
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            List<String> ownedAuthorities = getAuthorities(context);
 
-                if (authentication == null || !authentication.isAuthenticated()) {
+            for (CommandAuthority commandAuthority : commandAuthorities) {
+                String authority = commandAuthority.value();
+
+                if (!ownedAuthorities.contains(authority)) {
                     CommandUtil.throwSecurityException();
                 }
 
-                SystemUserPrincipal principal = (SystemUserPrincipal) authentication.getPrincipal();
-                List<String> ownedAuthorities = principal.getAuthorities();
-
-                for (String authority : authorities) {
-                    if (!ownedAuthorities.contains(authority)) {
-                        CommandUtil.throwSecurityException();
-                    }
-                }
-
             }
+
         }
     }
 }

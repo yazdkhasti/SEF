@@ -253,5 +253,25 @@ public class UserService implements UserDetailsService {
         };
     }
 
+    @Bean
+    public ICommandHandler<FindUserByIdCmd> findUserByIdHandler() {
+        return executionContext -> {
+
+            FindUserByIdCmd cmd = executionContext.getCommand();
+            String id = cmd.getUserId();
+            Optional<SystemUser> user = userRepository.findById(id);
+
+            if (!user.isPresent()) {
+                CommandUtil.throwRecordNotFoundException();
+            }
+
+            FindUserByIdResp resp = new FindUserByIdResp();
+            resp.setUser(user.get());
+
+            cmd.setResponse(resp);
+
+        };
+    }
+
 
 }

@@ -10,6 +10,7 @@ import edu.rmit.sef.stocktradingserver.order.command.OrderExeutionParameters;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderLineTransactionRepository;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
+import edu.rmit.sef.user.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +62,6 @@ public class OrderMatchHandler {
 
     }
 
-
     @Bean
     public ICommandHandler<WithdrawOrderCmd> withdrawOrderHandler() {
         return executionContext -> {
@@ -100,7 +100,7 @@ public class OrderMatchHandler {
 
             MatchOrderCmd matchOrderCmd = new MatchOrderCmd();
             matchOrderCmd.setOrderId(orderId);
-            executionContext.getCommandService().execute(matchOrderCmd);
+            executionContext.getCommandService(SystemUser.SYSTEM_USER_ID).execute(matchOrderCmd);
         };
     }
 

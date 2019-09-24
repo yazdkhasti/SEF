@@ -6,8 +6,12 @@ import edu.rmit.sef.core.model.Entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class SystemUser extends Entity {
+
+    public final static String SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000").toString();
+
     private String firstName;
     private String lastName;
     private String username;

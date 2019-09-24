@@ -2,10 +2,12 @@ package edu.rmit.sef.stocktradingserver.order.command;
 
 import edu.rmit.command.core.Command;
 import edu.rmit.command.core.NullResp;
+import edu.rmit.command.security.CommandAuthority;
 import edu.rmit.sef.order.model.Order;
 
 import java.util.Date;
 
+@CommandAuthority()
 public class OrderMatchedCmd extends Command<NullResp> {
     private Order buyOrder;
     private Order sellOrder;

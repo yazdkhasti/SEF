@@ -28,7 +28,7 @@ public class OrderMatchTests extends BaseTest {
     @Test
     public void OrdersWithExactPriceMatchTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();
@@ -538,7 +538,7 @@ public class OrderMatchTests extends BaseTest {
     @Test
     public void withdrawOrderAndPortfolioIntegrationTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();
