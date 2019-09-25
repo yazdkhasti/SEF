@@ -1,12 +1,5 @@
 package edu.rmit.sef.stocktradingserver.user.filter;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.ICommandServiceFactory;
 import edu.rmit.sef.stocktradingserver.core.security.SecurityUtil;
@@ -20,12 +13,20 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private ICommandServiceFactory commandServiceFactory;
 
+    @Autowired
+    private SecurityUtil securityUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -36,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new JwtTokenMissingException("No JWT token found in the request headers");
         }
 
-        String token = SecurityUtil.getBearerToken(header);
+        String token = securityUtil.getBearerToken(header);
 
         ICommandService commandService = commandServiceFactory.createService();
 
@@ -47,11 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SystemUserPrincipal principal = validateTokenResp.getUser();
 
 
-        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(principal);
+        AbstractAuthenticationToken authenticationToken = securityUtil.getToken(principal);
 
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        SecurityUtil.setAuthentication(authenticationToken);
+        securityUtil.setAuthentication(authenticationToken);
 
         filterChain.doFilter(request, response);
     }

@@ -42,7 +42,6 @@ public class StockService {
 
         return executionContext -> {
 
-            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
 
             AddStockCmd cmd = executionContext.getCommand();
 
@@ -86,6 +85,8 @@ public class StockService {
                     "Stock details can only be updated for stock that are not on trade.");
 
             stock.validate();
+
+            stock.update(executionContext.getUserId());
 
 
             stockRepository.save(stock);
@@ -151,7 +152,6 @@ public class StockService {
 
         return executionContext -> {
 
-            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
 
             DisableStockCmd cmd = executionContext.getCommand();
 

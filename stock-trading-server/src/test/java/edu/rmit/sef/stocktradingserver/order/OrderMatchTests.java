@@ -230,7 +230,7 @@ public class OrderMatchTests extends BaseTest {
 
     @Test(expected = CommandExecutionException.class)
     public void CompletedOrderMatchTest() {
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();

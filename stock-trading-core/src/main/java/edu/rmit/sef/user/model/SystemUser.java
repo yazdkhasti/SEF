@@ -3,7 +3,6 @@ package edu.rmit.sef.user.model;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.sef.core.model.Entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,9 +21,6 @@ public class SystemUser extends Entity {
     private List<String> authorities;
 
 
-    public SystemUser() {
-        authorities = new ArrayList<String>();
-    }
 
     public String getFirstName() {
         return firstName;

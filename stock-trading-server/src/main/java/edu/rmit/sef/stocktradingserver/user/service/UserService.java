@@ -6,6 +6,7 @@ import edu.rmit.command.core.InitCmd;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.core.security.Authority;
+import edu.rmit.sef.stocktradingserver.core.security.SecurityUtil;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
 import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
@@ -32,9 +33,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 @Configuration
@@ -53,6 +57,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -62,6 +69,9 @@ public class UserService implements UserDetailsService {
 
     @Value("${edu.rmit.sef.stocktrading.server.admin.password}")
     private String defaultAdminPassword;
+
+
+    private ConcurrentMap<String, List<String>> authorityCache = new ConcurrentHashMap<>();
 
 
     public String generateToken(SystemUser details) {
@@ -189,7 +199,19 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setLastSeenOn(new Date());
 
-            user.getAuthorities().add(Authority.USER);
+            if (user.getAuthorities() == null) {
+                user.setAuthorities(new ArrayList<>());
+            }
+
+            if (user.getAuthorities().contains(Authority.ADMIN)) {
+                if (!securityUtil.hasAuthority(executionContext.getUserId(), Authority.ADMIN)) {
+                    CommandUtil.throwSecurityException();
+                }
+            }
+
+            if (!user.getAuthorities().contains(Authority.USER)) {
+                user.getAuthorities().add(Authority.USER);
+            }
 
             user.validate();
 
@@ -267,6 +289,57 @@ public class UserService implements UserDetailsService {
 
             FindUserByIdResp resp = new FindUserByIdResp();
             resp.setUser(user.get());
+
+            cmd.setResponse(resp);
+
+        };
+    }
+
+    @Bean
+    public ICommandHandler<HasAuthorityCmd> hasAuthorityHandler() {
+        return executionContext -> {
+
+            HasAuthorityCmd cmd = executionContext.getCommand();
+            String userId = cmd.getUserId();
+
+
+            boolean result = false;
+
+            if (userId == null) {
+
+                result = false;
+
+            } else if (SystemUser.SYSTEM_USER_ID.compareTo(userId) == 0) {
+
+                result = true;
+
+            } else {
+
+                List<String> ownedAuthorities = authorityCache.get(userId);
+
+                if (ownedAuthorities == null) {
+
+                    FindUserByIdCmd findUserByIdCmd = new FindUserByIdCmd();
+                    findUserByIdCmd.setUserId(userId);
+
+                    FindUserByIdResp resp = executionContext
+                            .getCommandService()
+                            .execute(findUserByIdCmd).join();
+
+                    ownedAuthorities = resp.getUser().getAuthorities();
+
+                }
+
+
+                for (String authority : cmd.getAuthorities()) {
+                    result = ownedAuthorities.contains(authority);
+                }
+
+            }
+
+
+            HasAuthorityResp resp = new HasAuthorityResp();
+            resp.setResult(result);
 
             cmd.setResponse(resp);
 

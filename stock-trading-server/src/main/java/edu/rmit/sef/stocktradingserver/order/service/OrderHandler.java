@@ -16,7 +16,6 @@ import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.model.Stock;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
-import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,16 +115,6 @@ public class OrderHandler {
                 StockPortfolio stockPortfolio = getUserStockPortfolioResp.getStockPortfolio();
 
                 CommandUtil.must(() -> order.getQuantity() <= stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
-
-                UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
-                updateUserStockPortfolioCmd.setStockId(cmd.getStockId());
-                updateUserStockPortfolioCmd.setUserId(executionContext.getUserId());
-
-                long quantityChanged = -order.getQuantity();
-
-                updateUserStockPortfolioCmd.setQuantityChanged(quantityChanged);
-
-                commandService.execute(updateUserStockPortfolioCmd).join();
 
             }
 

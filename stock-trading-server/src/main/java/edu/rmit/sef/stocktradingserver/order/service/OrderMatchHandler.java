@@ -97,10 +97,29 @@ public class OrderMatchHandler {
 
             CreateOrderCmd createOrderCmd = executionContext.getCommand();
             String orderId = createOrderCmd.getResponse().getId();
+            ICommandService commandService = executionContext.getCommandService(SystemUser.SYSTEM_USER_ID);
+
+            Order order = db.findById(orderId, Order.class);
+
+            if (order.getOrderType() == OrderType.Sell) {
+
+                UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
+                updateUserStockPortfolioCmd.setStockId(order.getStockId());
+                updateUserStockPortfolioCmd.setUserId(executionContext.getUserId());
+
+                long quantityChanged = -order.getQuantity();
+
+                updateUserStockPortfolioCmd.setQuantityChanged(quantityChanged);
+
+                commandService.execute(updateUserStockPortfolioCmd).join();
+
+            }
 
             MatchOrderCmd matchOrderCmd = new MatchOrderCmd();
             matchOrderCmd.setOrderId(orderId);
-            executionContext.getCommandService(SystemUser.SYSTEM_USER_ID).execute(matchOrderCmd);
+            commandService.execute(matchOrderCmd);
+
+
         };
     }
 
