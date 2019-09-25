@@ -27,6 +27,9 @@ public class WebSocketAuthenticationSecurityConfig extends WebSocketConfig {
     @Autowired
     private ICommandServiceFactory commandServiceFactory;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {
@@ -42,12 +45,12 @@ public class WebSocketAuthenticationSecurityConfig extends WebSocketConfig {
                     if (headerValues.length > 0) {
 
                         String header = headerValues[0];
-                        String token = SecurityUtil.getBearerToken(header);
+                        String token = securityUtil.getBearerToken(header);
                         ValidateTokenCmd validateTokenCmd = new ValidateTokenCmd(token);
                         ICommandService commandService = commandServiceFactory.createService();
                         ValidateTokenResp validateTokenResp = commandService.execute(validateTokenCmd).join();
                         SystemUserPrincipal principal = validateTokenResp.getUser();
-                        AbstractAuthenticationToken authenticationToken = SecurityUtil.getToken(principal);
+                        AbstractAuthenticationToken authenticationToken = securityUtil.getToken(principal);
                         accessor.setUser(authenticationToken);
 
                     }

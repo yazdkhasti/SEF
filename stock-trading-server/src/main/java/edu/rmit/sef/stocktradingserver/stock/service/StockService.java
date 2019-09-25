@@ -1,8 +1,10 @@
 package edu.rmit.sef.stocktradingserver.stock.service;
 
-import edu.rmit.command.core.*;
+import edu.rmit.command.core.CommandUtil;
+import edu.rmit.command.core.ICommandHandler;
+import edu.rmit.command.core.ICommandService;
+import edu.rmit.command.core.NullResp;
 import edu.rmit.sef.core.command.CreateEntityResp;
-import edu.rmit.sef.core.command.GetAllResp;
 import edu.rmit.sef.core.command.PublishEventCmd;
 import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.stock.command.*;
@@ -15,17 +17,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.startsWith;
 
 @Configuration
 public class StockService {
@@ -45,7 +42,9 @@ public class StockService {
 
         return executionContext -> {
 
+
             AddStockCmd cmd = executionContext.getCommand();
+
 
             Stock stock = Entity.newEntity(executionContext.getUserId(), Stock.class);
 
@@ -70,6 +69,8 @@ public class StockService {
 
         return executionContext -> {
 
+            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
+
             UpdateStockCmd cmd = executionContext.getCommand();
 
             Stock stock = findStockById(cmd.getStockId());
@@ -84,6 +85,8 @@ public class StockService {
                     "Stock details can only be updated for stock that are not on trade.");
 
             stock.validate();
+
+            stock.update(executionContext.getUserId());
 
 
             stockRepository.save(stock);
@@ -129,6 +132,8 @@ public class StockService {
 
         return executionContext -> {
 
+            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
+
             ApproveStockCmd cmd = executionContext.getCommand();
 
             Stock stock = findStockById(cmd.getStockId());
@@ -146,6 +151,7 @@ public class StockService {
     public ICommandHandler<DisableStockCmd> disableStockHandler() {
 
         return executionContext -> {
+
 
             DisableStockCmd cmd = executionContext.getCommand();
 

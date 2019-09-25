@@ -4,15 +4,17 @@ import edu.rmit.command.core.CommandFilter;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.IExecutionContext;
 import edu.rmit.command.security.CommandAuthority;
-import edu.rmit.sef.user.model.SystemUserPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import edu.rmit.sef.user.model.SystemUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CommandAuthorityFilter extends CommandFilter {
+
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
 
     @Override
     public void beforeExecution(IExecutionContext context) {
@@ -21,28 +23,28 @@ public class CommandAuthorityFilter extends CommandFilter {
 
         if (tClass.isAnnotationPresent(CommandAuthority.class)) {
 
-            CommandAuthority commandAuthority = tClass.getAnnotation(CommandAuthority.class);
+            CommandAuthority[] commandAuthorities = tClass.getAnnotationsByType(CommandAuthority.class);
 
-            String[] authorities = commandAuthority.value();
+            if (context.getUserId() == null) {
+                CommandUtil.throwSecurityException();
+            }
 
-            if (authorities.length > 0) {
+            String userId = context.getUserId();
 
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (SystemUser.SYSTEM_USER_ID.compareTo(userId) == 0) {
+                return;
+            }
 
-                if (authentication == null || !authentication.isAuthenticated()) {
+
+            for (CommandAuthority commandAuthority : commandAuthorities) {
+                String authority = commandAuthority.value();
+
+                if (!securityUtil.hasAuthority(userId, authority)) {
                     CommandUtil.throwSecurityException();
                 }
 
-                SystemUserPrincipal principal = (SystemUserPrincipal) authentication.getPrincipal();
-                List<String> ownedAuthorities = principal.getAuthorities();
-
-                for (String authority : authorities) {
-                    if (!ownedAuthorities.contains(authority)) {
-                        CommandUtil.throwSecurityException();
-                    }
-                }
-
             }
+
         }
     }
 }

@@ -3,8 +3,11 @@ package edu.rmit.sef.stocktradingserver.portfolio.command;
 import edu.rmit.command.core.Command;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.command.core.QueuedCommand;
+import edu.rmit.command.security.CommandAuthority;
+import edu.rmit.sef.core.security.Authority;
 
 @QueuedCommand
+@CommandAuthority(Authority.ADMIN)
 public class UpdateUserStockPortfolioCmd extends Command<NullResp> {
 
     private String userId;

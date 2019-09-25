@@ -20,10 +20,16 @@ public class CommandFuture<T> extends CompletableFuture<T> {
 
     private void handleException(CompletionException ex) {
         Throwable cause = ex.getCause();
-        if (cause != null && cause instanceof CommandExecutionException) {
-            throw (CommandExecutionException) cause;
-        } else {
-            throw ex;
+
+        if (cause != null) {
+            if (cause instanceof CommandExecutionException) {
+                throw (CommandExecutionException) cause;
+            } else if (cause instanceof SecurityException) {
+                throw (SecurityException) cause;
+            }
         }
+
+        throw ex;
+
     }
 }

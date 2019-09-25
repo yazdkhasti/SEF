@@ -6,10 +6,7 @@ import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.InitCmd;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.core.model.Entity;
-import edu.rmit.sef.order.command.CreateOrderCmd;
-import edu.rmit.sef.order.command.FindOrderByIdCmd;
-import edu.rmit.sef.order.command.FindOrderByIdResp;
-import edu.rmit.sef.order.command.GetAllOrderCmd;
+import edu.rmit.sef.order.command.*;
 import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.portfolio.command.GetUserStockPortfolioCmd;
@@ -19,13 +16,16 @@ import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stock.model.Stock;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
-import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -41,6 +41,9 @@ public class OrderHandler {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private MongoTemplate db;
 
     @Value("${edu.rmit.sef.stocktrading.server.order.transactionIdSeed}")
     long transactionIdSeed;
@@ -71,6 +74,8 @@ public class OrderHandler {
 
             CreateOrderCmd cmd = executionContext.getCommand();
 
+            CommandUtil.assertNotNull(executionContext.getUserId(), "Client must be authenticated.");
+
             CommandUtil.must(() -> cmd.getQuantity() <= orderQuantityThreshold,
                     "Quantity bought or sold cannot exceed " + orderQuantityThreshold + " for each order");
 
@@ -93,14 +98,8 @@ public class OrderHandler {
             double maxValue = stock.getPrice() + orderPriceThreshold;
             double minValue = stock.getPrice() - orderPriceThreshold;
 
-
-            CommandUtil.must(() -> orderPrice < maxValue || orderPrice > minValue,
+            CommandUtil.must(() -> orderPrice <= maxValue && orderPrice >= minValue,
                     "Buy/Sell orders must be within +/-10 cents of the last trade.");
-
-            if (orderPrice < maxValue && orderPrice > minValue) {
-                CommandUtil.throwAppExecutionException("Buy/Sell orders must be within +/-10 cents of the last trade.");
-            }
-
 
 
             if (order.getOrderType() == OrderType.Sell) {
@@ -115,17 +114,7 @@ public class OrderHandler {
 
                 StockPortfolio stockPortfolio = getUserStockPortfolioResp.getStockPortfolio();
 
-                CommandUtil.must(() -> order.getQuantity() > stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
-
-                UpdateUserStockPortfolioCmd updateUserStockPortfolioCmd = new UpdateUserStockPortfolioCmd();
-                updateUserStockPortfolioCmd.setStockId(cmd.getStockId());
-                updateUserStockPortfolioCmd.setUserId(executionContext.getUserId());
-
-                long quantityChanged = -order.getQuantity();
-
-                updateUserStockPortfolioCmd.setQuantityChanged(quantityChanged);
-
-                commandService.execute(updateUserStockPortfolioCmd).join();
+                CommandUtil.must(() -> order.getQuantity() <= stockPortfolio.getQuantity(), "Client does not own the quantity of stock specified");
 
             }
 
@@ -141,8 +130,6 @@ public class OrderHandler {
             cmd.setResponse(new CreateEntityResp(order.getId()));
 
 
-
-
         };
 
     }
@@ -153,20 +140,22 @@ public class OrderHandler {
 
         return executionContext -> {
 
-//            GetAllOrderCmd cmd = executionContext.getCommand();
-//
-//            List<Order> orderList;
-//            Page<Order> orderPage;
-//            Order orderExample = new Order();
-//            orderExample.setId(executionContext.getUserId());
-//            Example<Order> example = Example.of(orderExample);
-//
-//            Sort sort = new Sort(Sort.Direction.ASC,"orderNumber");
-//            Pageable pageable = PageRequest.of(cmd.toPageable());
-//            orderPage = orderRepository.findAll(example,pageable);
-//            orderList = orderPage.getContent();
-//
-//            cmd.setResponse(new OrderListResp(orderList));
+            GetAllOrderCmd cmd = executionContext.getCommand();
+
+            List<Order> orderList;
+
+            Criteria criteria = Criteria.where("CreatedBy").regex(executionContext.getUserId(), "i");
+
+            Query query = Query.query(criteria);
+            long orderCount = db.count(query, Order.class);
+            query.with(cmd.toPageable());
+            orderList = db.find(query, Order.class);
+
+            GetAllOrderResp resp = new GetAllOrderResp();
+            resp.setOrderList(orderList);
+            resp.setTotalCount(orderCount);
+
+            cmd.setResponse(resp);
         };
 
     }
