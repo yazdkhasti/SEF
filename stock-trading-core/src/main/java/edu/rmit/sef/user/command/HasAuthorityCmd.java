@@ -16,6 +16,7 @@ public class HasAuthorityCmd extends Command<HasAuthorityResp> {
     }
 
     public HasAuthorityCmd(String userId, String[] authorities) {
+        this.userId = userId;
         this.authorities = authorities;
     }
 
