@@ -58,7 +58,7 @@ public class UserServiceUnitTests extends BaseTest {
         Assert.assertTrue(currentUser.getAuthorities().contains(Authority.USER));
     }
 
-    @Test(expected = SecurityException.class)
+    @Test(expected = CommandExecutionException.class)
     public void onlyAdminsCanAddAdminsTest() {
         ICommandService commandService = getCommandService();
 
@@ -207,7 +207,7 @@ public class UserServiceUnitTests extends BaseTest {
         RegisterUserCmd registerUserCmd = new RegisterUserCmd();
         registerUserCmd.setFirstName("payam");
         registerUserCmd.setLastName("yazdkhasti");
-        registerUserCmd.setUsername("adminAuthorityTest");
+        registerUserCmd.setUsername("userAuthorityGuardTest");
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 

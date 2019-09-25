@@ -25,9 +25,22 @@ public class StockTests extends BaseTest {
     public void addStockTest() {
         ICommandService commandService = getCommandService();
 
-        String id = addStock();
+        AddStockCmd addStockCmd = new AddStockCmd();
+        addStockCmd.setSymbol("goog");
+        addStockCmd.setName("Google");
+        addStockCmd.setPrice(100);
 
-        Assert.assertNotNull(id);
+        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
+
+        FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
+        findStockByIdCmd.setId(createEntityResp.getId());
+        FindStockByIdResp findStockByIdResp = commandService.execute(findStockByIdCmd).join();
+        Stock stock = findStockByIdResp.getStock();
+
+
+        Assert.assertEquals(stock.getPrice(), addStockCmd.getPrice(), 0);
+        Assert.assertEquals(stock.getName(), addStockCmd.getName());
+        Assert.assertEquals(stock.getName(), addStockCmd.getSymbol());
 
     }
 
