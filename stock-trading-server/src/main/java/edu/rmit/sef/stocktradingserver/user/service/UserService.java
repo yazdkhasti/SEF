@@ -199,7 +199,7 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setLastSeenOn(new Date());
 
-            if (user.getAuthorities() == null) {
+            if (cmd.getAuthorities() == null) {
                 user.setAuthorities(new ArrayList<>());
             }
 
@@ -268,6 +268,7 @@ public class UserService implements UserDetailsService {
             GetCurrentUserCmd cmd = executionContext.getCommand();
             String id = executionContext.getUserId();
             Optional<SystemUser> user = userRepository.findById(id);
+
 
             GetCurrentUserResp resp = new GetCurrentUserResp(user.get());
             cmd.setResponse(resp);

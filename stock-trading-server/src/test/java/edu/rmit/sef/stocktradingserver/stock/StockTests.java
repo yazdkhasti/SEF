@@ -3,6 +3,7 @@ package edu.rmit.sef.stocktradingserver.stock;
 
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.NullResp;
+import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.stock.command.*;
 import edu.rmit.sef.stock.model.Stock;
@@ -29,9 +30,9 @@ public class StockTests extends BaseTest {
 
     }
 
-    @Test(expected = CompletionException.class)
+    @Test(expected = CommandExecutionException.class)
     public void preventDuplicateStockTest() {
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd cmd = new AddStockCmd();
         cmd.setSymbol("goog");
