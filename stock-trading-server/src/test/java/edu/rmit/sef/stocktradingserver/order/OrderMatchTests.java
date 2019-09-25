@@ -2,8 +2,7 @@ package edu.rmit.sef.stocktradingserver.order;
 
 import edu.rmit.command.core.ExecutionOptions;
 import edu.rmit.command.core.ICommandService;
-import edu.rmit.command.core.ICommandStore;
-import edu.rmit.sef.order.command.CreateOrderCmd;
+import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.order.command.FindOrderByIdCmd;
 import edu.rmit.sef.order.command.FindOrderByIdResp;
 import edu.rmit.sef.order.model.OrderState;
@@ -15,16 +14,11 @@ import edu.rmit.sef.stock.command.FindStockByIdResp;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.command.OrderExeutionParameters;
-import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
-import net.bytebuddy.implementation.bind.annotation.Super;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.concurrent.CompletionException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -81,7 +75,7 @@ public class OrderMatchTests extends BaseTest {
 
     }
 
-    @Test(expected = CompletionException.class)
+    @Test(expected = CommandExecutionException.class)
     public void OrderStateMatchTest() {
         ICommandService commandService = getCommandService();
 

@@ -9,7 +9,7 @@ import edu.rmit.sef.order.model.OrderType;
 public class CreateOrderCmd extends Command<CreateEntityResp> {
 
     private double price;
-    private int quantity;
+    private long quantity;
     private OrderType orderType;
     private String stockId;
 
@@ -21,11 +21,11 @@ public class CreateOrderCmd extends Command<CreateEntityResp> {
         this.price = price;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 

@@ -3,20 +3,18 @@ package edu.rmit.sef.stocktradingserver.user.service;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandHandler;
 import edu.rmit.command.core.InitCmd;
+import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.core.model.Entity;
 import edu.rmit.sef.core.security.Authority;
-import edu.rmit.sef.order.model.Order;
-import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenCmd;
 import edu.rmit.sef.stocktradingserver.user.command.ValidateTokenResp;
+import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
+import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMalformedException;
 import edu.rmit.sef.stocktradingserver.user.exception.JwtTokenMissingException;
-import edu.rmit.sef.user.command.*;
-import edu.rmit.sef.stocktradingserver.user.exception.DisabledUserException;
-import edu.rmit.sef.user.model.SystemUser;
 import edu.rmit.sef.stocktradingserver.user.repo.UserRepository;
-import edu.rmit.sef.stocktradingserver.user.exception.InvalidUserCredentialsException;
-
+import edu.rmit.sef.user.command.*;
+import edu.rmit.sef.user.model.SystemUser;
 import edu.rmit.sef.user.model.SystemUserPrincipal;
 import io.jsonwebtoken.*;
 import org.modelmapper.ModelMapper;
@@ -40,7 +38,7 @@ import java.util.Optional;
 
 
 @Configuration
-public class UserAuthService implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
 
     @Autowired
@@ -132,11 +130,11 @@ public class UserAuthService implements UserDetailsService {
             if (userRepository.count() == 0) {
                 RegisterUserCmd registerUserCmd = new RegisterUserCmd();
                 registerUserCmd.setFirstName("System");
-                registerUserCmd.setLastName("Admin");
-                registerUserCmd.setUsername("admin");
+                registerUserCmd.setLastName("Administrator");
+                registerUserCmd.setUsername("administrator");
                 registerUserCmd.setPassword(defaultAdminPassword);
                 registerUserCmd.setCompany("RMIT");
-                RegisterUserResp registerUserResp = executionContext.getCommandService().execute(registerUserCmd).join();
+                CreateEntityResp registerUserResp = executionContext.getCommandService().execute(registerUserCmd).join();
                 SystemUser systemUser = userRepository.findById(registerUserResp.getId()).get();
                 systemUser.getAuthorities().add(Authority.ADMIN);
                 userRepository.save(systemUser);
@@ -193,9 +191,11 @@ public class UserAuthService implements UserDetailsService {
 
             user.getAuthorities().add(Authority.USER);
 
+            user.validate();
+
             userRepository.insert(user);
 
-            RegisterUserResp resp = new RegisterUserResp(user.getId());
+            CreateEntityResp resp = new CreateEntityResp(user.getId());
             cmd.setResponse(resp);
 
         };

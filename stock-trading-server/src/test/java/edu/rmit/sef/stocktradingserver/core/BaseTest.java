@@ -1,26 +1,26 @@
 package edu.rmit.sef.stocktradingserver.core;
 
-import com.sun.org.apache.xml.internal.resolver.readers.ExtendedXMLCatalogReader;
 import edu.rmit.command.core.ExecutionOptions;
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.core.ICommandServiceFactory;
 import edu.rmit.command.core.ICommandStore;
+import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.core.command.CreateEntityResp;
 import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.stock.command.AddStockCmd;
 import edu.rmit.sef.stocktradingserver.portfolio.command.UpdateUserStockPortfolioCmd;
 import edu.rmit.sef.user.command.RegisterUserCmd;
-import edu.rmit.sef.user.command.RegisterUserResp;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;
-import java.util.UUID;
 
 
 public class BaseTest {
+
     @Autowired
     private ICommandServiceFactory commandServiceFactory;
+
 
     @Autowired
     private ICommandStore commandStore;
@@ -32,6 +32,7 @@ public class BaseTest {
                 ? commandServiceFactory.createService()
                 : this.commandService;
     }
+
 
     public ICommandService getCommandService(String userId) {
         return commandServiceFactory.createService(userId);
@@ -81,7 +82,7 @@ public class BaseTest {
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 
-        RegisterUserResp registerUserResp = commandService.execute(registerUserCmd).join();
+        CreateEntityResp registerUserResp = commandService.execute(registerUserCmd).join();
 
         return registerUserResp.getId();
 
@@ -137,6 +138,16 @@ public class BaseTest {
 
         return createEntityResp.getId();
 
+    }
+
+    public void getCause(Object response, Throwable throwable) {
+        if (throwable != null) {
+            Throwable cause = throwable.getCause();
+
+            if (cause != null && cause instanceof CommandExecutionException) {
+                throw (CommandExecutionException) cause;
+            }
+        }
     }
 
 

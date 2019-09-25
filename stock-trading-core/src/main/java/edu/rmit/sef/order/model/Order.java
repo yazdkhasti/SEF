@@ -25,7 +25,7 @@ public class Order extends Entity {
         this.stockId = stockId;
     }
 
-    public String getTransactionId() {
+    public String formatTransactionId() {
         return transactionId;
     }
 
@@ -115,7 +115,7 @@ public class Order extends Entity {
         }
     }
 
-    public static String getTransactionId(Long orderNumber) {
+    public static String formatTransactionId(Long orderNumber) {
         return String.format("TR%1$12s", orderNumber).replace(' ', '0');
     }
 

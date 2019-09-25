@@ -134,10 +134,10 @@ public class OrderMatchHandler {
             db.save(masterTransaction);
 
 
-            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.formatTransactionId(), buyerOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            OrderMatchedEvent buyerEvent = new OrderMatchedEvent(buyerOrder.getTransactionId(), buyerOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
             commandService.execute(new PublishEventCmd(buyerEvent, OrderEventNames.ORDER_MATCHED, buyerOrder.getCreatedBy()));
 
-            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.formatTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
+            OrderMatchedEvent sellerEvent = new OrderMatchedEvent(sellOrder.getTransactionId(), sellOrder.getStockId(), cmd.getTradeQuantity(), cmd.getExecutedOn());
             commandService.execute(new PublishEventCmd(sellerEvent, OrderEventNames.ORDER_MATCHED, sellOrder.getCreatedBy()));
 
 
