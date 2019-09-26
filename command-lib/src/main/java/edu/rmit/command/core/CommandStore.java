@@ -9,15 +9,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @Service
 public class CommandStore implements ICommandStore {
 
     private ConcurrentMap<String, ICommandQueue> commandQueueMap;
-    private AtomicLong taskCount = new AtomicLong();
-    private AtomicLong asyncTaskCount = new AtomicLong();
+    private AtomicInteger taskCount = new AtomicInteger();
+    private AtomicInteger asyncTaskCount = new AtomicInteger();
 
     @Autowired
     private IServiceResolver serviceResolver;
@@ -58,12 +58,12 @@ public class CommandStore implements ICommandStore {
 
 
     @Override
-    public long getAsyncTaskCount() {
+    public int getAsyncTaskCount() {
         return asyncTaskCount.get();
     }
 
     @Override
-    public long getTasKCount() {
+    public int getTasKCount() {
         return taskCount.get();
     }
 

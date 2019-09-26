@@ -23,7 +23,7 @@ public class StockTests extends BaseTest {
 
     @Test
     public void addStockTest() {
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");
@@ -104,7 +104,7 @@ public class StockTests extends BaseTest {
     @Test(expected = CompletionException.class)
     public void updateStockSymbolNameDuplicateTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");
@@ -128,7 +128,7 @@ public class StockTests extends BaseTest {
     @Test
     public void approveTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");

@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 @Configuration
-public class UserService implements UserDetailsService {
+public class UserHandler implements UserDetailsService {
 
 
     @Autowired

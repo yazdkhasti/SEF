@@ -23,7 +23,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class UserServiceUnitTests extends BaseTest {
+public class UserHandlerUnitTests extends BaseTest {
 
 
     @Test

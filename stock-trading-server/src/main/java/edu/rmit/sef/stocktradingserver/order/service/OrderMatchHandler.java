@@ -2,9 +2,11 @@ package edu.rmit.sef.stocktradingserver.order.service;
 
 import edu.rmit.command.core.*;
 import edu.rmit.sef.core.command.PublishEventCmd;
+import edu.rmit.sef.core.security.Authority;
 import edu.rmit.sef.order.command.*;
 import edu.rmit.sef.order.model.*;
 import edu.rmit.sef.stock.command.UpdateStockPriceCmd;
+import edu.rmit.sef.stocktradingserver.core.security.SecurityUtil;
 import edu.rmit.sef.stocktradingserver.order.command.MatchOrderCmd;
 import edu.rmit.sef.stocktradingserver.order.command.OrderExeutionParameters;
 import edu.rmit.sef.stocktradingserver.order.command.OrderMatchedCmd;
@@ -31,6 +33,9 @@ public class OrderMatchHandler {
 
     @Autowired
     OrderLineTransactionRepository orderLineTransactionRepository;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     private enum MatchType {
         Exact,
@@ -69,6 +74,11 @@ public class OrderMatchHandler {
             WithdrawOrderCmd cmd = executionContext.getCommand();
 
             Order order = db.findById(cmd.getOrderId(), Order.class);
+
+            String userId = executionContext.getUserId();
+
+            CommandUtil.must(() -> order.getCreatedBy().compareTo(userId) == 0 || securityUtil.hasAuthority(userId, Authority.ADMIN),
+                    "The current user is not authorized to withdraw the order");
 
             order.withdraw();
             order.update(executionContext.getUserId());
