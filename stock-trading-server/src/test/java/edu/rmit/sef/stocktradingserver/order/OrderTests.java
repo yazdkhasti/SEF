@@ -57,7 +57,7 @@ public class OrderTests extends BaseTest {
         String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(400);
+        cmd.setPrice(300.5);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
@@ -85,7 +85,7 @@ public class OrderTests extends BaseTest {
         addPortfolio(userId,id,100);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Sell);
-        cmd.setPrice(400);
+        cmd.setPrice(300.5);
         cmd.setQuantity(10);
         cmd.setStockId(id);
         commandService.execute(cmd).join();
@@ -106,13 +106,12 @@ public class OrderTests extends BaseTest {
         String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Sell);
-        cmd.setPrice(300.1);
+        cmd.setPrice(350);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
         commandService.execute(cmd).join();
 
-        Assert.assertNotNull(cmd.getResponse().getId());
     }
 
     @Test(expected = CommandExecutionException.class)
@@ -128,7 +127,7 @@ public class OrderTests extends BaseTest {
 
         commandService.execute(cmd).join();
 
-        Assert.assertNotNull(cmd.getResponse().getId());
+
     }
 
 

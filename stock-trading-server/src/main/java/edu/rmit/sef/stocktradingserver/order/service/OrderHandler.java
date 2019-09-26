@@ -98,7 +98,7 @@ public class OrderHandler {
             double maxValue = stock.getPrice() + orderPriceThreshold;
             double minValue = stock.getPrice() - orderPriceThreshold;
 
-            CommandUtil.must(() -> orderPrice >= maxValue || orderPrice <= minValue,
+            CommandUtil.must(() -> orderPrice <= maxValue && orderPrice >= minValue,
                     "Buy/Sell orders must not be within +/-10 cents of the last trade.");
 
 
