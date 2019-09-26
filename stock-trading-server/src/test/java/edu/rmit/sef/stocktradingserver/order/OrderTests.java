@@ -21,6 +21,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Example;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -34,11 +37,23 @@ public class OrderTests extends BaseTest {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private MongoTemplate db;
+
+
 
     @Test
     public void createOrdetTest() {
         String userId = addUser();
         ICommandService commandService = getCommandService(userId);
+
+        GetAllOrderCmd getAllOrderCmd = new GetAllOrderCmd();
+        getAllOrderCmd.setPageNumber(0);
+        getAllOrderCmd.setPageSize(10);
+        commandService.execute(getAllOrderCmd).join();
+        List<Order> list = getAllOrderCmd.getResponse().getOrderList();
+        Assert.assertEquals(list.size(),0);
+
         String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Buy);
@@ -48,7 +63,9 @@ public class OrderTests extends BaseTest {
 
         commandService.execute(cmd).join();
 
-        Assert.assertNotNull(cmd.getResponse().getId());
+        commandService.execute(getAllOrderCmd).join();
+        list = getAllOrderCmd.getResponse().getOrderList();
+        Assert.assertEquals(list.size(),1);
 
     }
 
@@ -56,6 +73,14 @@ public class OrderTests extends BaseTest {
     public void createOrdetTest2() {
         String userId = addUser();
         ICommandService commandService = getCommandService(userId);
+
+        GetAllOrderCmd getAllOrderCmd = new GetAllOrderCmd();
+        getAllOrderCmd.setPageNumber(0);
+        getAllOrderCmd.setPageSize(10);
+        commandService.execute(getAllOrderCmd).join();
+        List<Order> list = getAllOrderCmd.getResponse().getOrderList();
+        Assert.assertEquals(list.size(),0);
+
         String id = addStock(300);
         addPortfolio(userId,id,100);
         CreateOrderCmd cmd = new CreateOrderCmd();
@@ -63,10 +88,14 @@ public class OrderTests extends BaseTest {
         cmd.setPrice(400);
         cmd.setQuantity(10);
         cmd.setStockId(id);
-
         commandService.execute(cmd).join();
 
-        Assert.assertNotNull(cmd.getResponse().getId());
+
+        commandService.execute(getAllOrderCmd).join();
+        list = getAllOrderCmd.getResponse().getOrderList();
+
+        Assert.assertEquals(list.size(),1);
+
 
     }
 
@@ -111,12 +140,14 @@ public class OrderTests extends BaseTest {
         String id = addStock(300);
         ICommandService commandService = getCommandService(userId);
 
-        Order orderExample = new Order();
-        orderExample.setId(userId);
-        Example<Order> example = Example.of(orderExample);
-        list = orderRepository.findAll(example);
+        GetAllOrderCmd getAllOrderCmd = new GetAllOrderCmd();
+        getAllOrderCmd.setPageNumber(0);
+        getAllOrderCmd.setPageSize(10);
+        commandService.execute(getAllOrderCmd).join();
 
-        Assert.assertEquals(list.size(),0);
+        list = getAllOrderCmd.getResponse().getOrderList();
+
+        Assert.assertEquals(list.size(),0); //Check this user doesn't have any orders.
 
 
 
@@ -129,14 +160,20 @@ public class OrderTests extends BaseTest {
 
         commandService.execute(cmd).join();
 
+        cmd.setOrderType(OrderType.Buy);
+        cmd.setPrice(600);
+        cmd.setQuantity(20);
+        cmd.setStockId(id);
 
-        GetAllOrderCmd cmd2 = new GetAllOrderCmd();
-        cmd2.setPageNumber(0);
-        cmd2.setPageSize(10);
-        commandService.execute(cmd2).join();
+        commandService.execute(cmd).join();
 
-        System.out.println("OrderList" +cmd2.getResponse().getOrderList().get(0).getTransactionId());
-        Assert.assertNotNull(cmd2.getResponse().getOrderList());
+
+        getAllOrderCmd.setPageNumber(0);
+        getAllOrderCmd.setPageSize(10);
+        commandService.execute(getAllOrderCmd).join();
+
+        list = getAllOrderCmd.getResponse().getOrderList();
+        Assert.assertEquals(list.size(),2);
 
     }
 
