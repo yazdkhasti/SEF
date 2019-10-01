@@ -58,6 +58,49 @@ public class UserServiceUnitTests extends BaseTest {
         Assert.assertTrue(currentUser.getAuthorities().contains(Authority.USER));
     }
 
+    @Test(expected = CommandExecutionException.class)
+    public void onlyAdminsCanAddAdminsTest() {
+        ICommandService commandService = getCommandService();
+
+        RegisterUserCmd registerUserCmd = new RegisterUserCmd();
+        registerUserCmd.setFirstName("payam");
+        registerUserCmd.setLastName("yazdkhasti");
+        registerUserCmd.setUsername("onlyAdminsCanAddAdminsTest");
+        registerUserCmd.setCompany("rmit");
+        registerUserCmd.setPassword("pwd");
+
+        List<String> authorities = new ArrayList<>();
+        authorities.add(Authority.ADMIN);
+        registerUserCmd.setAuthorities(authorities);
+
+        commandService.execute(registerUserCmd).join();
+    }
+
+    @Test()
+    public void addAdminUserTest() {
+        ICommandService commandService = getSystemCommandService();
+
+        RegisterUserCmd registerUserCmd = new RegisterUserCmd();
+        registerUserCmd.setFirstName("payam");
+        registerUserCmd.setLastName("yazdkhasti");
+        registerUserCmd.setUsername("onlyAdminsCanAddAdminsTest");
+        registerUserCmd.setCompany("rmit");
+        registerUserCmd.setPassword("pwd");
+
+        List<String> authorities = new ArrayList<>();
+        authorities.add(Authority.ADMIN);
+        registerUserCmd.setAuthorities(authorities);
+
+        CreateEntityResp resp = commandService.execute(registerUserCmd).join();
+
+        ICommandService userCommandService = getCommandService(resp.getId());
+        GetCurrentUserResp getCurrentUserResp = userCommandService.execute(new GetCurrentUserCmd()).join();
+
+        Assert.assertTrue(getCurrentUserResp.getUser().getAuthorities().contains(Authority.USER));
+        Assert.assertTrue(getCurrentUserResp.getUser().getAuthorities().contains(Authority.ADMIN));
+
+    }
+
     @Test
     public void registerAndAuthenticateUserTest() {
         ICommandService commandService = getCommandService();
@@ -164,7 +207,7 @@ public class UserServiceUnitTests extends BaseTest {
         RegisterUserCmd registerUserCmd = new RegisterUserCmd();
         registerUserCmd.setFirstName("payam");
         registerUserCmd.setLastName("yazdkhasti");
-        registerUserCmd.setUsername("adminAuthorityTest");
+        registerUserCmd.setUsername("userAuthorityGuardTest");
         registerUserCmd.setCompany("rmit");
         registerUserCmd.setPassword("pwd");
 
