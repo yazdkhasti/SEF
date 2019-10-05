@@ -15,33 +15,80 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class StockTests extends BaseTest {
 
-    @Test
-    public void addStockTest() {
+//    @Test
+//    public void addStockTest() {
+//
+//        AddStockCmd addStockCmd = new AddStockCmd();
+//        addStockCmd.setSymbol("goog");
+//        addStockCmd.setName("Google");
+//        addStockCmd.setPrice(100);
+//
+//        CreateEntityResp createEntityResp = BaseTest.commandService.execute(addStockCmd).join();
+//
+//        FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
+//        findStockByIdCmd.setId(createEntityResp.getId());
+//        FindStockByIdResp findStockByIdResp = BaseTest.commandService.execute(findStockByIdCmd).join();
+//        Stock stock = findStockByIdResp.getStock();
+//
+//
+//        Assert.assertEquals(stock.getPrice(), addStockCmd.getPrice(), 0);
+//        Assert.assertEquals(stock.getName(), addStockCmd.getName());
+//        Assert.assertEquals(stock.getName(), addStockCmd.getSymbol());
+//
+//    }
+
+    @Test(expected = SecurityException.class)
+    public void refuseAddStockTest(){
+        ICommandService commandService = getCommandService();
+
+
+        AddStockCmd cmd = new AddStockCmd();
+        cmd.setSymbol("goog");
+        cmd.setName("Google");
+        cmd.setPrice(100);
+
+//        commandService.execute(cmd).join();
+        CreateEntityResp addStockResp = commandService.execute(cmd).join();
+    }
+
+
+
+
+    @Test()
+    public void addStockTest1() {
+
+        ICommandService commandService = getSystemCommandService();
+
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");
         addStockCmd.setName("Google");
         addStockCmd.setPrice(100);
 
-        CreateEntityResp createEntityResp = commandService.execute(addStockCmd).join();
 
-        FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
-        findStockByIdCmd.setId(createEntityResp.getId());
+        CreateEntityResp addStockResp = commandService.execute(addStockCmd).join();
+
+        FindStockByIdCmd findStockByIdCmd =new FindStockByIdCmd();
+        findStockByIdCmd.setId(addStockResp.getId());
         FindStockByIdResp findStockByIdResp = commandService.execute(findStockByIdCmd).join();
         Stock stock = findStockByIdResp.getStock();
 
-
         Assert.assertEquals(stock.getPrice(), addStockCmd.getPrice(), 0);
         Assert.assertEquals(stock.getName(), addStockCmd.getName());
-        Assert.assertEquals(stock.getName(), addStockCmd.getSymbol());
+        Assert.assertEquals(stock.getSymbol(), addStockCmd.getSymbol());
+
 
     }
+
+
 
     @Test(expected = CommandExecutionException.class)
     public void preventDuplicateStockTest() {
@@ -160,10 +207,10 @@ public class StockTests extends BaseTest {
 
 
 
-    @Test(expected = CompletionException.class)
+    @Test(expected = CommandExecutionException.class)
     public void refuseApproveTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");
@@ -214,10 +261,10 @@ public class StockTests extends BaseTest {
 
     }
 
-    @Test(expected = CompletionException.class)
+    @Test(expected = CommandExecutionException.class)
     public void refuseDisableTest() {
 
-        ICommandService commandService = getCommandService();
+        ICommandService commandService = getSystemCommandService();
 
         AddStockCmd addStockCmd = new AddStockCmd();
         addStockCmd.setSymbol("goog");
