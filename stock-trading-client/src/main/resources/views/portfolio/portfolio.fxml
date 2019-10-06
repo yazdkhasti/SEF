@@ -8,7 +8,7 @@
 
 <GridPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="edu.rmit.sef.stocktradingclient.view.showPortfolio.portfolio"
+            fx:controller="edu.rmit.sef.stocktradingclient.view.showPortfolio.PortfolioController"
             prefHeight="400.0" prefWidth="600.0"
             fx:id="root">
 
