@@ -35,6 +35,7 @@ public class PortfolioController extends JavaFXController{
         StyleHelper.h2(header);
         root.getChildren().add(header);
 
+
         HBox toolbar = new HBox();
         root.getChildren().add(toolbar);
 
@@ -46,21 +47,21 @@ public class PortfolioController extends JavaFXController{
 
 
         portfolioTable = new TableView();
-
-        TableColumn<UserAllStockPortfolio, String> column1 = new TableColumn<>("Stock Name");
-        column1.setPrefWidth(200);
-        column1.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockName()));
-
-
-        TableColumn<UserAllStockPortfolio, String> column2 = new TableColumn<>("Quantity");
-        column2.setPrefWidth(200);
-        column2.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getQuantity())));
-
-        portfolioTable.getColumns().add(column1);
-        portfolioTable.getColumns().add(column2);
-
-
-        root.getChildren().add(portfolioTable);
+//
+//        TableColumn<UserAllStockPortfolio, String> column1 = new TableColumn<>("Stock Name");
+//        column1.setPrefWidth(200);
+//        column1.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockName()));
+//
+//
+//        TableColumn<UserAllStockPortfolio, String> column2 = new TableColumn<>("Quantity");
+//        column2.setPrefWidth(200);
+//        column2.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getQuantity())));
+//
+//        portfolioTable.getColumns().add(column1);
+//        portfolioTable.getColumns().add(column2);
+//
+//
+//        root.getChildren().add(portfolioTable);
 
 //        stockEvents.STOCK_ADDED.subscribe(entityChangedArg -> {
 //            getData();
