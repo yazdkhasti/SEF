@@ -1,7 +1,6 @@
 package edu.rmit.sef.stocktradingclient.view.order;
 
 
-
 import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.stock.command.GetAllStocksCmd;
@@ -74,7 +73,7 @@ public class CreateOrder extends JavaFXController {
 
 
         ChoiceBox<OrderType> orderTypeBox = new ChoiceBox<OrderType>(FXCollections.observableArrayList(
-                OrderType.Sell,OrderType.Buy
+                OrderType.Sell, OrderType.Buy
         ));
         GridPane.setConstraints(orderTypeBox, 1, 4);
 
@@ -92,14 +91,12 @@ public class CreateOrder extends JavaFXController {
         StyleHelper.error(errorLabel);
         GridPane.setConstraints(errorLabel, 1, 6);
 
-        HashMap<String,Stock> map = getStockList();
-
+        HashMap<String, Stock> map = getStockList();
 
 
         createBtn.setOnAction(event -> {
             String symbol = stockSymbolBox.getValue();
             String stockID = map.get(symbol).getId();
-            createBtn.setDisable(true);
             CreateOrderCmd createOrderCmd = new CreateOrderCmd();
             createOrderCmd.setStockId(stockID);
             createOrderCmd.setQuantity((Long.valueOf(quantityText.getText())));
@@ -107,16 +104,17 @@ public class CreateOrder extends JavaFXController {
             createOrderCmd.setOrderType(orderTypeBox.getValue());
 
             getCommandService().execute(createOrderCmd).whenComplete((CreateEntityResp, ex) -> {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.show();
+                createBtn.setDisable(true);
+//                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//                alert.show();
+                if (createOrderCmd.getResponse() != null) {
+                    close();
+                }
             });
 
-            if(createOrderCmd.getResponse() != null) {
-                close();
-            }
         });
 
-        root.getChildren().addAll(title,stockSymbolLabel, stockSymbolBox, priceLabel, priceText, quantityLabel, quantityText, buttonBox, errorLabel,orderType,orderTypeBox);
+        root.getChildren().addAll(title, stockSymbolLabel, stockSymbolBox, priceLabel, priceText, quantityLabel, quantityText, buttonBox, errorLabel, orderType, orderTypeBox);
 
     }
 
@@ -131,14 +129,14 @@ public class CreateOrder extends JavaFXController {
         return list;
     }
 
-    public HashMap<String,Stock> getStockList() {
-        HashMap<String,Stock> map = new HashMap<String,Stock>();
+    public HashMap<String, Stock> getStockList() {
+        HashMap<String, Stock> map = new HashMap<String, Stock>();
         GetAllStocksCmd getAllStocksCmd = new GetAllStocksCmd();
         getCommandService().execute(getAllStocksCmd).join();
         List<Stock> stockList = getAllStocksCmd.getResponse().getResult();
 
         for (int i = 0; i < stockList.size(); i++) {
-            map.put(stockList.get(i).getSymbol(),stockList.get(i));
+            map.put(stockList.get(i).getSymbol(), stockList.get(i));
         }
         return map;
     }
