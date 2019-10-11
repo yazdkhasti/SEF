@@ -3,6 +3,7 @@ package edu.rmit.sef.stocktradingclient.view.order;
 
 import edu.rmit.sef.order.command.GetAllOrderCmd;
 import edu.rmit.sef.order.model.Order;
+import edu.rmit.sef.stock.command.FindStockByIdCmd;
 import edu.rmit.sef.stocktradingclient.core.javafx.StyleHelper;
 import edu.rmit.sef.stocktradingclient.view.JavaFXController;
 import edu.rmit.sef.stocktradingclient.view.ViewNames;
@@ -34,9 +35,9 @@ public class OrderList extends JavaFXController {
         GridPane.setConstraints(title, 0, 0);
 
 
-        Label stockIDLabel = new Label();
-        stockIDLabel.setText("StockID");
-        GridPane.setConstraints(stockIDLabel, 0, 1);
+        Label stockSymbolLabel = new Label();
+        stockSymbolLabel.setText("Stock Symbol");
+        GridPane.setConstraints(stockSymbolLabel, 0, 1);
 
         Label priceLabel = new Label();
         priceLabel.setText("Price");
@@ -68,10 +69,16 @@ public class OrderList extends JavaFXController {
                 List<Order> orderList = OrderListResp.getOrderList();
                 if (orderList.size() != 0) {
                     int i;
+
                     for (i = 0; i < orderList.size(); i++) {
-                        Label stockIDText = new Label();
-                        GridPane.setConstraints(stockIDText, 0, 2 + i);
-                        stockIDText.setText(orderList.get(i).getStockId());
+                        Label stockSymbolText = new Label();
+                        GridPane.setConstraints(stockSymbolText, 0, 2 + i);
+                        FindStockByIdCmd  findStockByIdCmd = new FindStockByIdCmd();
+                        String stockID = orderList.get(i).getStockId();
+
+                        findStockByIdCmd.setId(stockID);
+                        getCommandService().execute(findStockByIdCmd).join();
+                        stockSymbolText.setText(findStockByIdCmd.getResponse().getStock().getSymbol());
 
                         Label priceText = new Label();
                         GridPane.setConstraints(priceText, 1, 2 + i);
@@ -81,7 +88,7 @@ public class OrderList extends JavaFXController {
                         GridPane.setConstraints(quantityText, 2, 2 + i);
                         quantityText.setText(Long.toString(orderList.get(i).getQuantity()));
 
-                        root.getChildren().addAll(stockIDText,priceText,quantityText);
+                        root.getChildren().addAll(stockSymbolText,priceText,quantityText);
                     }
                     GridPane.setConstraints(buttonBox,1,3+i);
                 } else  {
@@ -99,7 +106,7 @@ public class OrderList extends JavaFXController {
         });
 
 
-        root.getChildren().addAll(title, stockIDLabel, priceLabel, quantityLabel, buttonBox);
+        root.getChildren().addAll(title, stockSymbolLabel, priceLabel, quantityLabel, buttonBox);
 
     }
 }

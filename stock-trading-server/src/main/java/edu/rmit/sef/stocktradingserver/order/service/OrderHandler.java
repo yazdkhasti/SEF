@@ -99,7 +99,7 @@ public class OrderHandler {
             double minValue = stock.getPrice() - orderPriceThreshold;
 
             CommandUtil.must(() -> orderPrice <= maxValue && orderPrice >= minValue,
-                    "Buy/Sell orders must be within +/-10 cents of the last trade.");
+                    "Buy/Sell orders must not be within +/-10 cents of the last trade.");
 
 
             if (order.getOrderType() == OrderType.Sell) {
@@ -127,7 +127,7 @@ public class OrderHandler {
             orderRepository.insert(order);
 
 
-            cmd.setResponse(new CreateEntityResp(order.getId()));
+            cmd.setResponse(new CreateEntityResp(order.getTransactionId()));
 
 
         };
