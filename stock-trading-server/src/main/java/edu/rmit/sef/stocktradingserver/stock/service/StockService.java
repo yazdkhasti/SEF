@@ -45,7 +45,6 @@ public class StockService {
 
             AddStockCmd cmd = executionContext.getCommand();
 
-
             Stock stock = Entity.newEntity(executionContext.getUserId(), Stock.class);
 
             modelMapper.map(cmd, stock);

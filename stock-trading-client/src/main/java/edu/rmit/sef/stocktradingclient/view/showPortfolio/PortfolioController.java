@@ -31,7 +31,7 @@ public class PortfolioController extends JavaFXController{
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
 
-        Text header = new Text("The list of shares you owned");
+        Text header = new Text("                      The list of shares you owned");
         StyleHelper.h2(header);
         root.getChildren().add(header);
 
@@ -46,7 +46,7 @@ public class PortfolioController extends JavaFXController{
         toolbar.getChildren().add(refreshBth);
 
 
-        portfolioTable = new TableView();
+//        portfolioTable = new TableView();
 //
 //        TableColumn<UserAllStockPortfolio, String> column1 = new TableColumn<>("Stock Name");
 //        column1.setPrefWidth(200);
