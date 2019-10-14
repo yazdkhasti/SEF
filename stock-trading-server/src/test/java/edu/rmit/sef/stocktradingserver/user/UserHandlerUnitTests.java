@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletionException;
 
 
 @RunWith(SpringRunner.class)
@@ -56,6 +57,7 @@ public class UserHandlerUnitTests extends BaseTest {
         Assert.assertEquals(currentUser.getCompany(), registerUserCmd.getCompany());
         Assert.assertEquals(currentUser.getUsername(), registerUserCmd.getUsername());
         Assert.assertTrue(currentUser.getAuthorities().contains(Authority.USER));
+        Assert.assertNotEquals(currentUser.getPassword(), registerUserCmd.getPassword());
     }
 
     @Test(expected = CommandExecutionException.class)
@@ -238,6 +240,29 @@ public class UserHandlerUnitTests extends BaseTest {
 
         TestUserAuthorityCmd testAuthorityCmd = new TestUserAuthorityCmd();
         registeredUserCommandService.execute(testAuthorityCmd).join();
+
+    }
+
+    @Test(expected = CompletionException.class)
+    public void wrongAuthenticateInformationTest() {
+
+        ICommandService commandService = getCommandService();
+
+        RegisterUserCmd registerUserCmd = new RegisterUserCmd();
+        registerUserCmd.setFirstName("payam");
+        registerUserCmd.setLastName("yazdkhasti");
+        registerUserCmd.setUsername("wrongAuthenticateInformationTest");
+        registerUserCmd.setCompany("rmit");
+        registerUserCmd.setPassword("pwd");
+
+        CreateEntityResp registerUserResp = commandService.execute(registerUserCmd).join();
+
+
+        AuthenticateCmd authenticateCmd = new AuthenticateCmd();
+        authenticateCmd.setUsername(registerUserCmd.getUsername());
+        authenticateCmd.setUsername(registerUserCmd.getPassword() + "test");
+
+        commandService.execute(authenticateCmd).join();
 
     }
 

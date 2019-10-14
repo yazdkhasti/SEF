@@ -3,6 +3,10 @@ package edu.rmit.sef.order.model;
 import edu.rmit.command.core.CommandUtil;
 import edu.rmit.sef.core.model.Entity;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class Order extends Entity {
 
     private String transactionId;
@@ -11,10 +15,12 @@ public class Order extends Entity {
     private OrderType orderType;
     private OrderState orderState;
     private String stockId;
+    private List<OrderLineTransaction> lines;
     private long remainedQuantity;
 
     public Order() {
         this.orderState = OrderState.PendingTrade;
+        this.lines = new ArrayList<>();
     }
 
     public String getStockId() {
@@ -79,11 +85,13 @@ public class Order extends Entity {
         return result;
     }
 
-    public void trade(long quantity) {
+    public OrderLineTransaction trade(long quantity, double price, Date executedOn) {
 
         CommandUtil.must(() -> validForTrade(), "Order is not in valid state for trade");
 
         CommandUtil.must(() -> this.remainedQuantity >= quantity, "Trade quantity cannot exceed remaining quantity.");
+
+        CommandUtil.must(() -> this.price >= price, "Price cannot be greater than order price");
 
         if (this.remainedQuantity > quantity) {
             orderState = OrderState.PartiallyTraded;
@@ -91,6 +99,11 @@ public class Order extends Entity {
             orderState = OrderState.TradedCompletely;
         }
         remainedQuantity -= quantity;
+
+        OrderLineTransaction line = new OrderLineTransaction(quantity, price, executedOn);
+        this.lines.add(line);
+
+        return line;
     }
 
     public boolean validForWithdraw() {
@@ -114,6 +127,10 @@ public class Order extends Entity {
 
     public static String formatTransactionId(long orderNumber) {
         return String.format("TR%1$12s", orderNumber).replace(' ', '0');
+    }
+
+    public OrderLineTransaction[] getLines() {
+        return lines.toArray(new OrderLineTransaction[0]);
     }
 
 

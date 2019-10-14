@@ -4,4 +4,6 @@ public interface ICommandExecutionContext<T extends ICommand> extends IExecution
 
     T getCommand();
 
+    <P> P getExecutionParameter(String name, P defaultValue);
+
 }

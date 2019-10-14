@@ -28,6 +28,8 @@ public class JavaFXApp extends Application {
         context = builder.web(WebApplicationType.NONE).run(getParameters().getRaw().toArray(new String[0]));
         ViewManager viewManager = context.getBean(ViewManager.class);
         viewManager.init(stage);
+
+
     }
 
 

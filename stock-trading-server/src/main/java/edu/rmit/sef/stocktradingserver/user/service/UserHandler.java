@@ -75,6 +75,7 @@ public class UserHandler implements UserDetailsService {
 
 
     public String generateToken(SystemUser details) {
+
         Claims claims = Jwts.claims()
                 .setSubject(details.getUsername())
                 .setId(details.getId());

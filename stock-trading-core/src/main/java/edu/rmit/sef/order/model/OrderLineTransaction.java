@@ -1,33 +1,22 @@
 package edu.rmit.sef.order.model;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class OrderLineTransaction {
 
-    private String orderId;
-    private long quantity;
     private String orderLineTransactionId;
+    private long quantity;
     private double executedPrice;
     private Date executedOn;
 
-    public OrderLineTransaction(String orderId, long quantity, String orderLineTransactionId, double executedPrice, Date executedOn) {
-        this.orderId = orderId;
+    public OrderLineTransaction(long quantity, double executedPrice, Date executedOn) {
         this.quantity = quantity;
-        this.orderLineTransactionId = orderLineTransactionId;
+        this.orderLineTransactionId = UUID.randomUUID().toString();
         this.executedPrice = executedPrice;
         this.executedOn = executedOn;
     }
 
-    public OrderLineTransaction() {
-    }
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
 
     public long getQuantity() {
         return quantity;

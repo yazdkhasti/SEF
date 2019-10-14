@@ -18,4 +18,9 @@ public class ViewNames {
         public static final String CreateOrder = "/order/createOrder";
         public static final String OrderList = "/order/orderList";
     }
+
+    public class Portfolio {
+        public static final String PortfolioList = "/portfolio/portfolioList";
+    }
+
 }

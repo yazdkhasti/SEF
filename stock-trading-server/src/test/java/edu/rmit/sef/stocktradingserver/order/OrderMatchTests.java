@@ -4,6 +4,7 @@ import edu.rmit.command.core.ExecutionOptions;
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.order.command.*;
+import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.order.model.TradeTransaction;
@@ -19,6 +20,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -272,6 +275,77 @@ public class OrderMatchTests extends BaseTest {
 
     }
 
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanOrderQuantityTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(30, 300.6, new Date());
+
+    }
+
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanOrderPriceTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(20, 300.7, new Date());
+
+    }
+
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanQuantityInMultipleOrdersTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(20, 300.6, new Date());
+        buyOrder.trade(1, 300.6, new Date());
+
+    }
+
+
     @Test
     public void PartiallyTradableOrderMatchTest() {
         ICommandService commandService = getCommandService();
@@ -435,7 +509,6 @@ public class OrderMatchTests extends BaseTest {
         String stockId = addStock(300.5);
 
 
-
         ExecutionOptions executionOptions = new ExecutionOptions();
         executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
 
@@ -460,7 +533,6 @@ public class OrderMatchTests extends BaseTest {
 
     @Test
     public void partialWithdrawOrderTest() {
-
 
 
         String stockId = addStock(300.5);
@@ -509,7 +581,6 @@ public class OrderMatchTests extends BaseTest {
     public void withdrawAlreadyWithdrawnOrderTest() {
 
 
-
         String stockId = addStock(300.5);
         String firstUserId = addUser();
 
@@ -544,7 +615,6 @@ public class OrderMatchTests extends BaseTest {
 
     @Test
     public void withdrawOrderAndPortfolioIntegrationTest() {
-
 
 
         String stockId = addStock(300.5);
