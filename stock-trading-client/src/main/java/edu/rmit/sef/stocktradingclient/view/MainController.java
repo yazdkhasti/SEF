@@ -84,6 +84,12 @@ public class MainController extends JavaFXController {
         Button portfolioBtn = getNavActionButton("Portfolio", "portfolio.png");
         actionGroupBox.getChildren().add(portfolioBtn);
 
+        portfolioBtn.setOnAction(event -> {
+            Parent portfolioNode = getViewManager().loadSubScene(ViewNames.Portfolio.Portfolio,this.getPath());
+            StyleHelper.addClass(portfolioNode,"center-pane");
+            root.setCenter(portfolioNode);
+        });
+
         Button ordersBtn = getNavActionButton("Orders", "orders.png");
         actionGroupBox.getChildren().add(ordersBtn);
 

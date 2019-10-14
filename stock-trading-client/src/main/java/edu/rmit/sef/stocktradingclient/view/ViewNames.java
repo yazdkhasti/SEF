@@ -20,7 +20,6 @@ public class ViewNames {
     }
 
     public class Portfolio {
-        public static final String PortfolioList = "/portfolio/portfolioList";
+        public static final String Portfolio = "/portfolio/portfolio";
     }
-
 }

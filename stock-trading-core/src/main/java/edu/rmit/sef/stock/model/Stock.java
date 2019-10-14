@@ -48,11 +48,13 @@ public class Stock extends Entity {
         this.stockState = StockState.OnTrade;
     }
 
+
     public void disable() {
         CommandUtil.must(() -> validForDisable(), "The stock is not in a valid state.");
 
         this.stockState = StockState.Disabled;
     }
+
 
     public boolean validForDisable() {
         return this.stockState == StockState.OnTrade
@@ -66,6 +68,7 @@ public class Stock extends Entity {
     public boolean validForApprove() {
         return this.stockState == StockState.PendingApprove;
     }
+
 
     @Override
     public void validate() {
