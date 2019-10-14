@@ -1,8 +1,9 @@
 package edu.rmit.sef.portfolio.command;
 
 import edu.rmit.sef.portfolio.model.StockPortfolio;
+import edu.rmit.sef.stock.command.GetAllStocksResp;
 
-public class GetUserStockPortfolioResp {
+public class GetUserStockPortfolioResp extends GetAllStocksResp {
 
     private StockPortfolio stockPortfolio;
 
