@@ -127,7 +127,7 @@ public class OrderHandler {
             orderRepository.insert(order);
 
 
-            cmd.setResponse(new CreateEntityResp(order.getTransactionId()));
+            cmd.setResponse(new CreateEntityResp(order.getId()));
 
 
         };

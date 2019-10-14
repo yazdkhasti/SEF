@@ -34,7 +34,7 @@ public class OrderTests extends BaseTest {
 
 
     @Test
-    public void createOrdetTest() {
+    public void createBuyOrderTest() {
         String userId = addUser();
         ICommandService commandService = getCommandService(userId);
 
@@ -48,7 +48,7 @@ public class OrderTests extends BaseTest {
         String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(300.5);
+        cmd.setPrice(300.05);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
@@ -56,12 +56,13 @@ public class OrderTests extends BaseTest {
 
         commandService.execute(getAllOrderCmd).join();
         list = getAllOrderCmd.getResponse().getOrderList();
-        Assert.assertEquals(list.size(),1);
+        Assert.assertEquals(list,1);
+        //check orderID
 
     }
 
     @Test
-    public void createOrdetTest2() {
+    public void createSellOrderTest() {
         String userId = addUser();
         ICommandService commandService = getCommandService(userId);
 
@@ -76,7 +77,7 @@ public class OrderTests extends BaseTest {
         addPortfolio(userId,id,100);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Sell);
-        cmd.setPrice(300.5);
+        cmd.setPrice(300.01);
         cmd.setQuantity(10);
         cmd.setStockId(id);
         commandService.execute(cmd).join();
@@ -96,7 +97,7 @@ public class OrderTests extends BaseTest {
         ICommandService commandService = getCommandService(userId);
         String id = addStock(300);
         CreateOrderCmd cmd = new CreateOrderCmd();
-        cmd.setOrderType(OrderType.Sell);
+        cmd.setOrderType(OrderType.Buy);
         cmd.setPrice(350);
         cmd.setQuantity(10);
         cmd.setStockId(id);
@@ -112,7 +113,7 @@ public class OrderTests extends BaseTest {
         String id = addStock(200);
         CreateOrderCmd cmd = new CreateOrderCmd();
         cmd.setOrderType(OrderType.Sell);
-        cmd.setPrice(400);
+        cmd.setPrice(200.01);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
@@ -144,14 +145,14 @@ public class OrderTests extends BaseTest {
         CreateOrderCmd cmd = new CreateOrderCmd();
 
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(500);
+        cmd.setPrice(300.05);
         cmd.setQuantity(10);
         cmd.setStockId(id);
 
         commandService.execute(cmd).join();
 
         cmd.setOrderType(OrderType.Buy);
-        cmd.setPrice(600);
+        cmd.setPrice(300.04);
         cmd.setQuantity(20);
         cmd.setStockId(id);
 
