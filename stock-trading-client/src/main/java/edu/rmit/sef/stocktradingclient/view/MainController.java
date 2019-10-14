@@ -99,11 +99,11 @@ public class MainController extends JavaFXController {
             root.setCenter(orderNode);
         });
 
-        portfolioBtn.setOnAction(event -> {
-            Parent portfolioNode = getViewManager().loadSubScene(ViewNames.Portfolio.PortfolioList, this.getPath());
-            StyleHelper.addClass(portfolioNode, "center-pane");
-            root.setCenter(portfolioNode);
-        });
+//        portfolioBtn.setOnAction(event -> {
+//            Parent portfolioNode = getViewManager().loadSubScene(ViewNames.Portfolio.PortfolioList, this.getPath());
+//            StyleHelper.addClass(portfolioNode, "center-pane");
+//            root.setCenter(portfolioNode);
+//        });
 
         SystemUser currentUser = getPermissionManager().getCurrentUser();
         welcomeLbl.setText(welcomeLbl.getText() + " " + currentUser.getFirstName() + " !");
