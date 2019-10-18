@@ -79,9 +79,12 @@ public class OrderList extends JavaFXController {
         Button createBtn = new Button();
         createBtn.setText("CreateOrder");
 
+        Button refreshbtn = new Button();
+        refreshbtn.setText("Refresh");
+
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonBox.getChildren().addAll(createBtn);
+        buttonBox.getChildren().addAll(createBtn,refreshbtn);
         GridPane.setConstraints(buttonBox, 0, 2);
 
 
@@ -90,6 +93,10 @@ public class OrderList extends JavaFXController {
         createBtn.setOnAction(event -> {
             getViewManager().showAppScreen(ViewNames.Order.CreateOrder);
 
+        });
+
+        refreshbtn.setOnAction(event -> {
+            getData();
         });
 
         root.getChildren().addAll(title, buttonBox, orderTable);
@@ -122,7 +129,7 @@ public class OrderList extends JavaFXController {
 
                     }
                 }
-                System.out.println(orderList.size());
+
                 orderTable.setItems(orderList);
             });
         });

@@ -81,7 +81,7 @@ public class OrderHandler {
 
             ICommandService commandService = executionContext.getCommandService();
 
-            Order order = Entity.newEntity(executionContext.getUserId(), Order.class);
+                Order order = Entity.newEntity(executionContext.getUserId(), Order.class);
             modelMapper.map(cmd, order);
 
             FindStockByIdCmd findStockByIdCmd = new FindStockByIdCmd();
