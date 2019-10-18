@@ -6,7 +6,7 @@ import java.util.Map;
 public class ExecutionOptions {
 
     private boolean ignoreAsyncHandlers;
-    public Map<String, Object> executionParameters = new HashMap<>();
+    private Map<String, Object> executionParameters = new HashMap<>();
 
 
     public boolean getIgnoreAsyncHandlers() {

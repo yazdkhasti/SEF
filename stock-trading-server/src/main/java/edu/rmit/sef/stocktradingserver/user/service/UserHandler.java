@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 @Configuration
-public class UserService implements UserDetailsService {
+public class UserHandler implements UserDetailsService {
 
 
     @Autowired
@@ -75,6 +75,7 @@ public class UserService implements UserDetailsService {
 
 
     public String generateToken(SystemUser details) {
+
         Claims claims = Jwts.claims()
                 .setSubject(details.getUsername())
                 .setId(details.getId());

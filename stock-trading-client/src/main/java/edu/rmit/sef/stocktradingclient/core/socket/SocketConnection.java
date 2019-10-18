@@ -76,11 +76,9 @@ public class SocketConnection {
     }
 
     public void disconnect() {
-        if (isConnected) {
-            token = null;
-            stompSession.disconnect();
-            isConnected = false;
-        }
+        token = null;
+        isConnected = false;
+        stompSession.disconnect();
     }
 
     private SocketMessage sendMessage(SocketMessage message) {

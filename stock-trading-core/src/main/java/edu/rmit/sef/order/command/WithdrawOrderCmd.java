@@ -4,12 +4,13 @@ import edu.rmit.command.core.Command;
 import edu.rmit.command.core.EnableCustomKeySelector;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.command.core.QueuedCommand;
-import edu.rmit.sef.order.model.OrderState;
-import edu.rmit.sef.order.model.OrderType;
+import edu.rmit.command.security.CommandAuthority;
+import edu.rmit.sef.core.security.Authority;
 
 
 @QueuedCommand
 @EnableCustomKeySelector
+@CommandAuthority(Authority.USER)
 public class WithdrawOrderCmd extends Command<NullResp> {
 
 

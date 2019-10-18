@@ -84,6 +84,12 @@ public class MainController extends JavaFXController {
         Button portfolioBtn = getNavActionButton("Portfolio", "portfolio.png");
         actionGroupBox.getChildren().add(portfolioBtn);
 
+        stocksBtn.setOnAction(event -> {
+            Parent node = getViewManager().loadSubScene(ViewNames.Stock.StockList,this.getPath());
+            StyleHelper.addClass(node,"center-pane");
+            root.setCenter(node);
+        });
+
         portfolioBtn.setOnAction(event -> {
             Parent portfolioNode = getViewManager().loadSubScene(ViewNames.Portfolio.Portfolio,this.getPath());
             StyleHelper.addClass(portfolioNode,"center-pane");
@@ -98,6 +104,12 @@ public class MainController extends JavaFXController {
             StyleHelper.addClass(orderNode, "center-pane");
             root.setCenter(orderNode);
         });
+
+//        portfolioBtn.setOnAction(event -> {
+//            Parent portfolioNode = getViewManager().loadSubScene(ViewNames.Portfolio.PortfolioList, this.getPath());
+//            StyleHelper.addClass(portfolioNode, "center-pane");
+//            root.setCenter(portfolioNode);
+//        });
 
         SystemUser currentUser = getPermissionManager().getCurrentUser();
         welcomeLbl.setText(welcomeLbl.getText() + " " + currentUser.getFirstName() + " !");

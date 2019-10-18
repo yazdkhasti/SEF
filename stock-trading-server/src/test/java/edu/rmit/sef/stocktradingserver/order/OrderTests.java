@@ -1,20 +1,14 @@
 package edu.rmit.sef.stocktradingserver.order;
 
 
-import edu.rmit.command.core.CommandUtil;
 import edu.rmit.command.core.ICommandService;
-import edu.rmit.command.exception.AppExecutionException;
 import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.order.command.CreateOrderCmd;
 import edu.rmit.sef.order.command.GetAllOrderCmd;
-import edu.rmit.sef.order.command.GetAllOrdersCmd;
-import edu.rmit.sef.order.command.RemoveOrderCmd;
 import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.stocktradingserver.core.BaseTest;
 import edu.rmit.sef.stocktradingserver.order.repo.OrderRepository;
-import edu.rmit.sef.user.command.*;
-import edu.rmit.sef.user.model.SystemUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +21,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.CompletionException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)

@@ -1,7 +1,5 @@
 package edu.rmit.command.core;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
@@ -75,6 +73,11 @@ public class ExecutionContext<T extends ICommand> implements ICommandExecutionCo
     @Override
     public T getCommand() {
         return this.command;
+    }
+
+    @Override
+    public <P> P getExecutionParameter(String name, P defaultValue) {
+        return executionOptions.getExecutionParameter(name, defaultValue);
     }
 
     public void setCommand(T command) {

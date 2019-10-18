@@ -4,6 +4,7 @@ import edu.rmit.command.core.Command;
 import edu.rmit.command.core.NullResp;
 import edu.rmit.command.security.CommandAuthority;
 import edu.rmit.sef.order.model.Order;
+import edu.rmit.sef.order.model.OrderLineTransaction;
 
 import java.util.Date;
 
@@ -11,14 +12,18 @@ import java.util.Date;
 public class OrderMatchedCmd extends Command<NullResp> {
     private Order buyOrder;
     private Order sellOrder;
+    private OrderLineTransaction buyLine;
+    private OrderLineTransaction sellLine;
     private long tradeQuantity;
     private double executedPrice;
     private Date executedOn;
     private String stockId;
 
-    public OrderMatchedCmd(Order buyOrder, Order sellOrder, String stockId, long tradeQuantity, double executedPrice) {
+    public OrderMatchedCmd(Order buyOrder, OrderLineTransaction buyLine, Order sellOrder, OrderLineTransaction sellLine, String stockId, long tradeQuantity, double executedPrice) {
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
+        this.buyLine = buyLine;
+        this.sellLine = sellLine;
         this.stockId = stockId;
         this.tradeQuantity = tradeQuantity;
         this.executedPrice = executedPrice;
@@ -71,6 +76,22 @@ public class OrderMatchedCmd extends Command<NullResp> {
 
     public String getStockId() {
         return stockId;
+    }
+
+    public OrderLineTransaction getBuyLine() {
+        return buyLine;
+    }
+
+    public void setBuyLine(OrderLineTransaction buyLine) {
+        this.buyLine = buyLine;
+    }
+
+    public OrderLineTransaction getSellLine() {
+        return sellLine;
+    }
+
+    public void setSellLine(OrderLineTransaction sellLine) {
+        this.sellLine = sellLine;
     }
 
     public void setStockId(String stockId) {

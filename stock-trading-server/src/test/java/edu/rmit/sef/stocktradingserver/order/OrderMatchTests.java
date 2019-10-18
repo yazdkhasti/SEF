@@ -4,6 +4,7 @@ import edu.rmit.command.core.ExecutionOptions;
 import edu.rmit.command.core.ICommandService;
 import edu.rmit.command.exception.CommandExecutionException;
 import edu.rmit.sef.order.command.*;
+import edu.rmit.sef.order.model.Order;
 import edu.rmit.sef.order.model.OrderState;
 import edu.rmit.sef.order.model.OrderType;
 import edu.rmit.sef.order.model.TradeTransaction;
@@ -19,6 +20,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -272,6 +275,77 @@ public class OrderMatchTests extends BaseTest {
 
     }
 
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanOrderQuantityTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(30, 300.6, new Date());
+
+    }
+
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanOrderPriceTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(20, 300.7, new Date());
+
+    }
+
+    @Test(expected = CommandExecutionException.class)
+    public void tradeMoreThanQuantityInMultipleOrdersTest() {
+
+        ICommandService commandService = getSystemCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+        executionOptions.addExecutionParameter(OrderExeutionParameters.DISABLE_ORDER_MATCH, true);
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
+        findSellOrderByIdCmd.setOrderId(buyOrderId);
+        FindOrderByIdResp findSellOrderByIdResp = commandService.execute(findSellOrderByIdCmd).join();
+
+        Order buyOrder = findSellOrderByIdResp.getOrder();
+
+        buyOrder.trade(20, 300.6, new Date());
+        buyOrder.trade(1, 300.6, new Date());
+
+    }
+
+
     @Test
     public void PartiallyTradableOrderMatchTest() {
         ICommandService commandService = getCommandService();
@@ -428,10 +502,11 @@ public class OrderMatchTests extends BaseTest {
     @Test
     public void withdrawOrderTest() {
 
-        ICommandService commandService = getCommandService();
+
+        String firstUserId = addUser();
+
 
         String stockId = addStock(300.5);
-        String firstUserId = addUser();
 
 
         ExecutionOptions executionOptions = new ExecutionOptions();
@@ -442,6 +517,7 @@ public class OrderMatchTests extends BaseTest {
         WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
         withdrawOrderCmd.setOrderId(buyOrderId);
 
+        ICommandService commandService = getCommandService(firstUserId);
         commandService.execute(withdrawOrderCmd).join();
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
@@ -458,7 +534,6 @@ public class OrderMatchTests extends BaseTest {
     @Test
     public void partialWithdrawOrderTest() {
 
-        ICommandService commandService = getCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();
@@ -477,17 +552,19 @@ public class OrderMatchTests extends BaseTest {
         WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
         withdrawOrderCmd.setOrderId(buyOrderId);
 
-        commandService.execute(withdrawOrderCmd).join();
+        ICommandService buyerCommandService = getCommandService(firstUserId);
+        buyerCommandService.execute(withdrawOrderCmd).join();
 
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
-        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = buyerCommandService.execute(findBuyOrderByIdCmd).join();
 
+        ICommandService sellerCommandService = getCommandService(secondUserId);
 
         FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
         findSellOrderByIdCmd.setOrderId(sellOrderId);
-        FindOrderByIdResp findSellOrderByIdAfterMatchResp = commandService.execute(findSellOrderByIdCmd).join();
+        FindOrderByIdResp findSellOrderByIdAfterMatchResp = sellerCommandService.execute(findSellOrderByIdCmd).join();
 
 
         Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.PartiallyCanceled);
@@ -503,11 +580,10 @@ public class OrderMatchTests extends BaseTest {
     @Test(expected = CommandExecutionException.class)
     public void withdrawAlreadyWithdrawnOrderTest() {
 
-        ICommandService commandService = getCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();
-        String secondUserId = addUser();
+
 
         ExecutionOptions executionOptions = new ExecutionOptions();
 
@@ -518,6 +594,8 @@ public class OrderMatchTests extends BaseTest {
 
         WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
         withdrawOrderCmd.setOrderId(buyOrderId);
+
+        ICommandService commandService = getCommandService(firstUserId);
         commandService.execute(withdrawOrderCmd).join();
 
 
@@ -538,7 +616,6 @@ public class OrderMatchTests extends BaseTest {
     @Test
     public void withdrawOrderAndPortfolioIntegrationTest() {
 
-        ICommandService commandService = getSystemCommandService();
 
         String stockId = addStock(300.5);
         String firstUserId = addUser();
@@ -557,17 +634,19 @@ public class OrderMatchTests extends BaseTest {
         WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
         withdrawOrderCmd.setOrderId(buyOrderId);
 
-        commandService.execute(withdrawOrderCmd).join();
+        ICommandService buyerCommandService = getCommandService(firstUserId);
+        buyerCommandService.execute(withdrawOrderCmd).join();
 
 
         FindOrderByIdCmd findBuyOrderByIdCmd = new FindOrderByIdCmd();
         findBuyOrderByIdCmd.setOrderId(buyOrderId);
-        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = commandService.execute(findBuyOrderByIdCmd).join();
+        FindOrderByIdResp findBuyOrderByIdAfterMatchResp = buyerCommandService.execute(findBuyOrderByIdCmd).join();
 
 
         FindOrderByIdCmd findSellOrderByIdCmd = new FindOrderByIdCmd();
         findSellOrderByIdCmd.setOrderId(sellOrderId);
-        FindOrderByIdResp findSellOrderByIdAfterMatchResp = commandService.execute(findSellOrderByIdCmd).join();
+        ICommandService sellerCommandService = getCommandService(secondUserId);
+        FindOrderByIdResp findSellOrderByIdAfterMatchResp = sellerCommandService.execute(findSellOrderByIdCmd).join();
 
 
         Assert.assertEquals(findBuyOrderByIdAfterMatchResp.getOrder().getOrderState(), OrderState.PartiallyCanceled);
@@ -579,7 +658,7 @@ public class OrderMatchTests extends BaseTest {
         GetUserStockPortfolioCmd getUserStockPortfolioCmd = new GetUserStockPortfolioCmd();
         getUserStockPortfolioCmd.setUserId(firstUserId);
         getUserStockPortfolioCmd.setStockId(stockId);
-        GetUserStockPortfolioResp getUserStockPortfolioResp = commandService.execute(getUserStockPortfolioCmd).join();
+        GetUserStockPortfolioResp getUserStockPortfolioResp = buyerCommandService.execute(getUserStockPortfolioCmd).join();
 
         Assert.assertEquals(getUserStockPortfolioResp.getStockPortfolio().getUserId(), firstUserId);
         Assert.assertEquals(getUserStockPortfolioResp.getStockPortfolio().getStockId(), stockId);
@@ -587,5 +666,31 @@ public class OrderMatchTests extends BaseTest {
 
 
     }
+
+    @Test(expected = CommandExecutionException.class)
+    public void withdrawAnOrderFromAnotherUserTest() {
+
+        ICommandService commandService = getCommandService();
+
+        String stockId = addStock(300.5);
+        String firstUserId = addUser();
+        String secondUserId = addUser();
+
+        ExecutionOptions executionOptions = new ExecutionOptions();
+
+
+        String buyOrderId = addOrder(firstUserId, stockId, 20, 300.6, OrderType.Buy, executionOptions);
+
+        waitForAllTasks();
+
+        ICommandService secondUserCommandService = getCommandService(secondUserId);
+
+        WithdrawOrderCmd withdrawOrderCmd = new WithdrawOrderCmd();
+        withdrawOrderCmd.setOrderId(buyOrderId);
+        secondUserCommandService.execute(withdrawOrderCmd).join();
+
+
+    }
+
 
 }
